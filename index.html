@@ -81,6 +81,141 @@ const CARTE = {
 };
 const CARTE_STR = `Carte de valeur:\nValeurs: ${CARTE.valeurs.join(", ")}\nForces: ${CARTE.forces.join(", ")}\nRéussites: ${CARTE.reussites.join(" | ")}\nCroyances: ${CARTE.croyances.join(" | ")}\nEngagements: ${CARTE.engagements.join(" | ")}`;
 
+const DISTORSION_DATA = {
+  "Tout ou rien": {
+    questions: [
+      "Y a-t-il des nuances ou des situations intermédiaires que tu ignores ?",
+      "Sur une échelle de 0 à 100, où se situe vraiment cette situation ?",
+      "Est-ce vraiment tout noir ou tout blanc, ou y a-t-il du gris ?"
+    ],
+    normes: [
+      "La réalité existe rarement en termes absolus — elle est faite de nuances.",
+      "Penser en tout ou rien amplifie la souffrance sans refléter la réalité.",
+      "L'échec partiel n'est pas un échec total."
+    ]
+  },
+  "Surgénéralisation": {
+    questions: [
+      "Est-ce que cette situation s'est vraiment passée à chaque fois, ou seulement parfois ?",
+      "Quelles sont les exceptions à cette règle que tu t'imposes ?",
+      "Un seul événement peut-il vraiment définir une règle universelle ?"
+    ],
+    normes: [
+      "Un événement isolé ne constitue pas une règle universelle.",
+      "Tirer une conclusion générale d'un seul fait est une erreur logique.",
+      "Les exceptions existent toujours — les ignorer fausse le jugement."
+    ]
+  },
+  "Filtre négatif": {
+    questions: [
+      "Qu'est-ce qui s'est bien passé dans cette situation que tu ne mentionnes pas ?",
+      "Si tu devais noter objectivement cette situation, quel score lui donnerais-tu ?",
+      "Pourquoi ton attention se fixe-t-elle uniquement sur le négatif ?"
+    ],
+    normes: [
+      "Une situation contient toujours des éléments positifs et négatifs.",
+      "Se focaliser uniquement sur le négatif déforme la réalité.",
+      "Un jugement équilibré prend en compte l'ensemble des faits."
+    ]
+  },
+  "Dévalorisation du positif": {
+    questions: [
+      "Pourquoi minimises-tu ce qui s'est bien passé ?",
+      "Si quelqu'un d'autre avait réussi ça, dirais-tu que c'est sans importance ?",
+      "Quelle preuve as-tu que ce positif ne compte pas ?"
+    ],
+    normes: [
+      "Les réussites méritent d'être reconnues au même titre que les échecs.",
+      "Minimiser le positif est une distorsion, pas une lucidité.",
+      "Ce qui est bien accompli a une valeur réelle, indépendamment du contexte."
+    ]
+  },
+  "Lecture des pensées": {
+    questions: [
+      "As-tu demandé directement à cette personne ce qu'elle pense vraiment ?",
+      "Quelle preuve concrète as-tu de ce que tu supposes ?",
+      "Est-il possible que tu projettes tes propres craintes sur cette personne ?"
+    ],
+    normes: [
+      "Personne ne peut lire dans les pensées des autres.",
+      "Une supposition n'est pas un fait — seule la vérification compte.",
+      "Les interprétations sans preuve sont des constructions mentales."
+    ]
+  },
+  "Prédiction négative": {
+    questions: [
+      "Quelle est la probabilité réelle que le pire se produise ?",
+      "Combien de fois as-tu prédit le pire et ça ne s'est pas passé ainsi ?",
+      "Quels scénarios positifs ou neutres sont possibles ?"
+    ],
+    normes: [
+      "Le futur est incertain — les prédictions négatives ne sont pas des faits.",
+      "Anticiper le pire sans preuve est une erreur de raisonnement.",
+      "Les issues positives sont aussi probables que les négatives."
+    ]
+  },
+  "Catastrophisme": {
+    questions: [
+      "Quelle est la pire chose réaliste qui puisse arriver, et peux-tu y faire face ?",
+      "Dans 5 ans, est-ce que cet événement aura encore autant d'importance ?",
+      "As-tu déjà traversé des situations difficiles et t'en es sorti ?"
+    ],
+    normes: [
+      "Exagérer la gravité d'une situation augmente la souffrance sans changer les faits.",
+      "La plupart des situations difficiles sont surmontables.",
+      "La capacité humaine à s'adapter est généralement sous-estimée."
+    ]
+  },
+  "Raisonnement émotionnel": {
+    questions: [
+      "Ce que tu ressens est-il une preuve de ce qui est vrai ?",
+      "Peux-tu trouver des faits objectifs qui contredisent ce que tu ressens ?",
+      "Tes émotions t'informent-elles ou te trompent-elles ici ?"
+    ],
+    normes: [
+      "Une émotion est une information, pas une vérité absolue.",
+      "Ressentir quelque chose ne le rend pas réel ou vrai.",
+      "Les faits existent indépendamment de ce qu'on ressent."
+    ]
+  },
+  "Les « je dois »": {
+    questions: [
+      "Qui a décidé de cette règle que tu t'imposes ?",
+      "Que se passe-t-il réellement si tu ne respectes pas ce 'je dois' ?",
+      "Cette règle est-elle flexible ou rigide — et pourquoi ?"
+    ],
+    normes: [
+      "Les règles rigides créent de la souffrance inutile.",
+      "Les attentes perfectionnistes sont rarement réalistes ou utiles.",
+      "La flexibilité est une force, pas une faiblesse."
+    ]
+  },
+  "Étiquetage": {
+    questions: [
+      "Est-ce qu'une action ou une erreur définit totalement qui tu es ?",
+      "Utiliserais-tu cette étiquette pour définir quelqu'un d'autre dans la même situation ?",
+      "Quelle est la différence entre 'j'ai fait une erreur' et 'je suis un raté' ?"
+    ],
+    normes: [
+      "Un être humain ne peut pas être réduit à une seule action ou caractéristique.",
+      "Les erreurs font partie de l'apprentissage — elles ne définissent pas l'identité.",
+      "Se définir par ses échecs est réducteur et inexact."
+    ]
+  },
+  "Personnalisation": {
+    questions: [
+      "Quels autres facteurs, indépendants de toi, ont contribué à cette situation ?",
+      "As-tu vraiment le contrôle total sur ce qui s'est passé ?",
+      "Est-il juste de te tenir entièrement responsable de quelque chose qui implique d'autres personnes ?"
+    ],
+    normes: [
+      "La plupart des situations sont influencées par de multiples facteurs.",
+      "Se sentir responsable de tout est une surcharge injuste.",
+      "La responsabilité se partage — elle n'appartient pas toujours à une seule personne."
+    ]
+  }
+};
+
 const DISTORSIONS=["Tout ou rien","Surgénéralisation","Filtre négatif","Dévalorisation du positif","Lecture des pensées","Prédiction négative","Catastrophisme","Raisonnement émotionnel","Les « je dois »","Étiquetage","Personnalisation"];
 const EMOTIONS=["Anxieux","Triste","En colère","Honteux","Coupable","Découragé","Frustré","Autre"];
 const COMPORTEMENTS=["Évitement","Isolement","Agressivité","Procrastination","Rumination","Impulsivité","Autre"];
@@ -363,26 +498,54 @@ ${navRow(f.pensee.trim().length>0||true)}`;
 ${navRow()}`;
 
   }else if(state.step==="norme"){
+    // Normes suggérées selon distorsions
+    const normesAuto = [...new Set(
+      f.distorsions.flatMap(d => (DISTORSION_DATA[d]?.normes||[]))
+    )];
     content=`<h2>⚖️ Quelle est la norme ?</h2>
 <p class="sub">Le fait objectif et universel qui permet d'analyser cette voix.</p>
-<button class="btn btn-primary mb12" onclick="askAI('norme')" ${load("norme")?"disabled":""}>${aiBtnTxt("norme","🤖 Suggérer des normes")}</button>
-${aiBox(f.normeAI,"norme","setForm('norme',state.form.normeAI)")}
+${normesAuto.length>0?`
+<div style="font-size:.75rem;color:#a78bfa;margin-bottom:8px;font-weight:600">📌 Normes selon tes distorsions</div>
+${normesAuto.map(n=>`<div class="card mb8" style="cursor:pointer" onclick="setForm('norme','${n.replace(/'/g,"\\'")}')">
+<div style="font-size:.85rem;color:#e9d5ff">${esc(n)}</div>
+<div style="font-size:.7rem;color:#7c3aed;margin-top:4px">Appuie pour utiliser</div>
+</div>`).join("")}
+<div style="font-size:.75rem;color:#9ca3af;margin:12px 0 8px;font-weight:600">✏️ Ou écris la tienne</div>
+`:`<p class="sub" style="color:#6b7280">Sélectionne des distorsions à l'étape précédente pour voir des normes suggérées.</p>`}
 <textarea rows="4" placeholder="Ex : La perfection n'existe pas..."
   onblur="setForm('norme',this.value)">${esc(f.norme)}</textarea>
 ${navRow()}`;
 
   }else if(state.step==="analyse"){
+    const questionsAuto = [...new Set(
+      f.distorsions.flatMap(d => (DISTORSION_DATA[d]?.questions||[]))
+    )];
     content=`<h2>🗣️ Analyse</h2>
 <p class="sub">Questions pour challenger la voix.</p>
-<button class="btn btn-primary mb12" onclick="askAI('questions')" ${load("questions")?"disabled":""}>${aiBtnTxt("questions","🤖 Générer les questions")}</button>
-${load("questions")?`<p class="sub pulse" style="text-align:center">Génération en cours...</p>`:""}
-${f.questions.length===0&&!load("questions")?`<p class="sub" style="text-align:center;color:#6b7280">Appuie pour générer des questions personnalisées.</p>`:""}
-${f.questions.map((q,i)=>`<div class="card mb8">
+${questionsAuto.length>0?`
+<div style="font-size:.75rem;color:#a78bfa;margin-bottom:8px;font-weight:600">📌 Questions selon tes distorsions</div>
+${questionsAuto.map((q,i)=>`<div class="card mb8">
 <div style="font-size:.85rem;font-weight:600;color:#a78bfa;margin-bottom:8px">${esc(q)}</div>
-<textarea rows="3" placeholder="Ta réponse..." id="rep_${i}"
-  onblur="state.form.reponses['${q.replace(/'/g,"\\'").replace(/"/g,"&quot;")}']=this.value"
->${esc(f.reponses[q]||"")}</textarea>
+<textarea rows="3" placeholder="Ta réponse..."
+  onblur="state.form.reponses['auto_${i}']=this.value"
+>${esc(f.reponses[`auto_${i}`]||"")}</textarea>
+</div>`).join("")}`:`<p class="sub" style="color:#6b7280">Sélectionne des distorsions à l'étape précédente pour voir des questions suggérées.</p>`}
+<div style="font-size:.75rem;color:#9ca3af;margin:16px 0 8px;font-weight:600">✏️ Mes questions personnelles</div>
+${(f.questions||[]).map((q,i)=>`<div class="card mb8" style="position:relative">
+<div style="font-size:.85rem;font-weight:600;color:#d4d4d8;margin-bottom:8px">${esc(q)}</div>
+<textarea rows="3" placeholder="Ta réponse..."
+  onblur="state.form.reponses['custom_${i}']=this.value"
+>${esc(f.reponses[`custom_${i}`]||"")}</textarea>
+<button onclick="state.form.questions.splice(${i},1);render()" style="position:absolute;top:8px;right:8px;background:none;border:none;color:#6b7280;cursor:pointer;font-size:.8rem">✕</button>
 </div>`).join("")}
+<div class="card" style="border:1px dashed #374151;background:transparent">
+<div style="font-size:.75rem;color:#9ca3af;margin-bottom:6px">+ Ajouter ma propre question</div>
+<textarea rows="2" placeholder="Ex : Est-ce que j'ai déjà vécu ça et m'en suis sorti ?" id="newQ"></textarea>
+<button class="btn btn-secondary mt8" style="padding:8px;font-size:.8rem" onclick="
+  const q=document.getElementById('newQ').value.trim();
+  if(q){state.form.questions=[...(state.form.questions||[]),q];render();}
+">Ajouter</button>
+</div>
 ${navRow()}`;
 
   }else if(state.step==="contrearguments"){
