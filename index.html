@@ -315,7 +315,7 @@ function addCarteItem(key){
 }
 function removeCarteItem(key,idx){state.carte[key].splice(idx,1);saveCarte();render();}
 function exportTxt(){
-  const lines=state.records.map(r=>[`=== ${new Date(r.date).toLocaleDateString("fr-FR")} ===`,`VOIX: ${r.pensee}`,`CONVICTION: ${r.convictionAvant}% → ${r.convictionApres}%`,`DISTORSIONS: ${(r.distorsions||[]).join(", ")}`,`ÉMOTIONS: ${(r.emotions||[]).join(", ")}`,`NORME: ${r.norme}`,`CONTRE-ARGUMENTS: ${r.contrearguments}`,`ÉCART: ${r.ecart}`,`BESOINS: ${r.besoins}`,`ACTION: ${r.action}`,`PROJET: ${r.projet}`,`NOTE: ${r.noteLibre}`,""]).join("\n")).join("\n");
+  const lines=state.records.map(r=>[`=== ${new Date(r.date).toLocaleDateString("fr-FR")} ===`,`VOIX: ${r.pensee}`,`CONVICTION: ${r.convictionAvant}% → ${r.convictionApres}%`,`DISTORSIONS: ${(r.distorsions||[]).join(", ")}`,`ÉMOTIONS: ${(r.emotions||[]).join(", ")}`,`NORME: ${r.norme}`,`CONTRE-ARGUMENTS: ${r.contrearguments}`,`ÉCART: ${r.ecart}`,`BESOINS: ${r.besoins}`,`ACTION: ${r.action}`,`PROJET: ${r.projet}`,`NOTE: ${r.noteLibre}`,""].join("\n")).join("\n");
   dl(lines,"tcc.txt","text/plain");
 }
 function exportJson(){dl(JSON.stringify(state.records,null,2),"tcc.json","application/json");}
