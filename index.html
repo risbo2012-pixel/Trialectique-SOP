@@ -507,7 +507,7 @@ function renderNew(){
   let content="";
 
   if(state.step==="pensee"){
-    content=`<h2>💭 Quelle est la voix intérieure ?</h2><p class="sub">Ce que la voix dit, mot pour mot.</p>
+    content=`<h2>💭 Quelle est la voix intérieure / pensée ?</h2><p class="sub">Ce que la voix dit, mot pour mot.</p>
 <textarea rows="5" placeholder="Ex : Je suis incompétent, je n'y arriverai jamais..." onblur="setForm('pensee',this.value)">${esc(f.pensee)}</textarea>
 <div class="mt16"><p class="sub">Niveau de conviction : <span class="strong">${f.convictionAvant}%</span></p>
 <input type="range" min="0" max="100" value="${f.convictionAvant}" oninput="setForm('convictionAvant',+this.value)"/></div>
