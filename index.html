@@ -51,6 +51,27 @@ const STEP_LABELS = {
   besoin: "Besoin", action: "Action & Projet", evaluation: "Évaluation"
 };
 
+function PenseeStep({ form, set }) {
+  const [local, setLocal] = useState(form.pensee);
+  return (
+    <div>
+      <h2 className="text-xl font-bold mb-2">💭 Quelle est ta pensée ?</h2>
+      <p className="text-gray-400 text-sm mb-3">La pensée automatique, mot pour mot.</p>
+      <textarea
+        value={local}
+        onChange={e => setLocal(e.target.value)}
+        onBlur={() => set("pensee", local)}
+        placeholder="Ex : Je suis incompétent, je n'y arriverai jamais..."
+        className="w-full bg-gray-800 rounded-2xl p-4 text-white placeholder-gray-500 resize-none h-32 focus:outline-none focus:ring-2 focus:ring-purple-500 mb-4"
+      />
+      <p className="text-gray-400 text-sm mb-2">Niveau de conviction : <span className="text-white font-bold">{form.convictionAvant}%</span></p>
+      <input type="range" min="0" max="100" value={form.convictionAvant}
+        onChange={e => set("convictionAvant", Number(e.target.value))}
+        className="w-full accent-purple-500" />
+    </div>
+  );
+}
+
 const callAI = async (prompt) => {
   const res = await fetch("https://api.anthropic.com/v1/messages", {
     method: "POST",
@@ -360,17 +381,7 @@ PROJET (long terme): ...`;
 
         {/* PENSEE */}
         {step === "pensee" && (
-          <div>
-            <h2 className="text-xl font-bold mb-2">💭 Quelle est ta pensée ?</h2>
-            <p className="text-gray-400 text-sm mb-3">La pensée automatique, mot pour mot.</p>
-            <textarea value={form.pensee} onChange={e => set("pensee", e.target.value)}
-              placeholder="Ex : Je suis incompétent, je n'y arriverai jamais..."
-              className="w-full bg-gray-800 rounded-2xl p-4 text-white placeholder-gray-500 resize-none h-32 focus:outline-none focus:ring-2 focus:ring-purple-500 mb-4" />
-            <p className="text-gray-400 text-sm mb-2">Niveau de conviction : <span className="text-white font-bold">{form.convictionAvant}%</span></p>
-            <input type="range" min="0" max="100" value={form.convictionAvant}
-              onChange={e => set("convictionAvant", Number(e.target.value))}
-              className="w-full accent-purple-500" />
-          </div>
+          <PenseeStep form={form} set={set} />
         )}
 
         {/* MANIFESTATION */}
