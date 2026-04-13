@@ -443,7 +443,7 @@ function renderHome(){
   const last=state.records[0];
   const btns=[
     {icon:"➕",label:"Nouvelle séance",sub:"Démarrer une restructuration",cls:"btn-primary",action:"state.form=emptyForm();state.step='pensee';setView('new')",iconBg:"rgba(255,255,255,.2)",color:"#fff"},
-    {icon:"📊",label:"Tableau de bord",sub:"Stats, distorsions, insights",cls:"btn-secondary",action:"setView('dashboard')",iconBg:"var(--sky-light)",color:"var(--sky-deeper)"},
+
     {icon:"📋",label:`Historique`,sub:`${state.records.length} séance(s)`,cls:"btn-secondary",action:"setView('history')",iconBg:"var(--sky-light)",color:"var(--sky-deeper)"},
     {icon:"🗺️",label:"Carte de valeur",sub:"Enrichir ma base personnelle",cls:"btn-secondary",action:"setView('carte')",iconBg:"var(--sky-light)",color:"var(--sky-deeper)"},
     {icon:"⚙️",label:"Paramètres",sub:"Clé API et données",cls:"btn-secondary",action:"setView('settings')",iconBg:"var(--sky-light)",color:"var(--sky-deeper)"},
@@ -630,7 +630,7 @@ function render(){
   else if(state.view==="detail")html=renderDetail();
   else if(state.view==="carte")html=renderCarte();
   else if(state.view==="settings")html=renderSettings();
-  else if(state.view==="dashboard")html=renderDashboard();
+
   app.innerHTML=html;
 }
 render();
