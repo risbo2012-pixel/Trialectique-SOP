@@ -1,566 +1,465 @@
-import { useState, useEffect } from "react";
-
+<!DOCTYPE html>
+<html lang="fr">
+<head>
+<meta charset="UTF-8"/>
+<meta name="viewport" content="width=device-width, initial-scale=1.0"/>
+<meta name="theme-color" content="#0a0a0a"/>
+<meta name="apple-mobile-web-app-capable" content="yes"/>
+<meta name="apple-mobile-web-app-status-bar-style" content="black"/>
+<meta name="apple-mobile-web-app-title" content="Mon TCC"/>
+<title>Mon TCC</title>
+<style>
+*{box-sizing:border-box;margin:0;padding:0}
+body{background:#0a0a0a;color:#fff;font-family:-apple-system,BlinkMacSystemFont,'Segoe UI',sans-serif;min-height:100vh}
+.app{max-width:480px;margin:0 auto;padding:16px;min-height:100vh}
+h1{font-size:1.5rem;font-weight:700;text-align:center;margin-bottom:4px}
+h2{font-size:1.2rem;font-weight:700;margin-bottom:8px}
+p.sub{color:#9ca3af;font-size:.875rem;margin-bottom:12px}
+textarea{width:100%;background:#1f2937;border:none;border-radius:16px;padding:16px;color:#fff;font-size:1rem;resize:none;outline:none;font-family:inherit;line-height:1.5}
+textarea:focus{box-shadow:0 0 0 2px #7c3aed}
+input[type=range]{width:100%;accent-color:#7c3aed;margin:8px 0}
+.btn{width:100%;padding:16px;border:none;border-radius:16px;font-size:1rem;font-weight:700;cursor:pointer;transition:.2s;display:block;text-align:left}
+.btn-primary{background:linear-gradient(to right,#7c3aed,#db2777);color:#fff;text-align:center}
+.btn-secondary{background:#1f2937;color:#fff}
+.btn-success{background:linear-gradient(to right,#16a34a,#0d9488);color:#fff;text-align:center}
+.btn-danger{background:#7f1d1d;color:#fca5a5;font-size:.875rem;text-align:center}
+.btn:disabled{opacity:.4;cursor:default}
+.btn-sm{padding:8px 16px;font-size:.8rem;border-radius:12px;border:none;cursor:pointer;font-weight:600;background:#1f2937;color:#fff}
+.card{background:#1f2937;border-radius:16px;padding:16px;margin-bottom:12px}
+.card-label{font-size:.75rem;color:#9ca3af;margin-bottom:4px}
+.tag{display:inline-block;padding:6px 12px;border-radius:20px;font-size:.8rem;cursor:pointer;margin:4px;border:none;font-weight:600;transition:.2s}
+.tag-off{background:#1f2937;color:#d1d5db}
+.tag-on{background:#7c3aed;color:#fff}
+.progress-bar{background:#374151;border-radius:99px;height:8px;margin-bottom:16px}
+.progress-fill{height:8px;border-radius:99px;background:linear-gradient(to right,#7c3aed,#db2777);transition:width .4s}
+.progress-header{display:flex;justify-content:space-between;font-size:.75rem;color:#9ca3af;margin-bottom:4px}
+.ai-box{background:#1e1b4b;border:1px solid #4c1d95;border-radius:12px;padding:12px;margin-bottom:12px;font-size:.875rem}
+.ai-label{font-size:.7rem;color:#a78bfa;margin-bottom:4px}
+.ai-text{color:#e9d5ff;white-space:pre-wrap;line-height:1.5}
+.ai-use{background:none;border:none;color:#a78bfa;font-size:.75rem;text-decoration:underline;cursor:pointer;margin-top:6px}
+.nav-row{display:flex;gap:12px;margin-top:16px}
+.nav-row .btn{flex:1;text-align:center}
+.stat-grid{display:grid;grid-template-columns:1fr 1fr;gap:12px;margin-bottom:16px}
+.stat-card{background:#1f2937;border-radius:16px;padding:12px;text-align:center}
+.stat-val{font-size:1.5rem;font-weight:700}
+.green{color:#4ade80}.orange{color:#fb923c}
+.record-card{background:#1f2937;border-radius:16px;padding:16px;margin-bottom:12px;cursor:pointer}
+.record-card:hover{background:#374151}
+.record-date{font-size:.75rem;color:#6b7280;margin-bottom:4px}
+.record-pensee{font-weight:600;white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
+.record-meta{font-size:.8rem;color:#9ca3af;margin-top:4px}
+.section-title{font-size:.9rem;font-weight:700;margin:16px 0 8px}
+.api-input{background:#1f2937;border:1px solid #374151;border-radius:12px;padding:12px;color:#fff;width:100%;font-size:.85rem;outline:none;margin-bottom:8px;font-family:inherit}
+.api-input:focus{border-color:#7c3aed}
+.back-btn{background:none;border:none;color:#9ca3af;font-size:.875rem;cursor:pointer;margin-bottom:16px;display:block;padding:0}
+.italic{font-style:italic;color:#d1d5db}
+.wrap{display:flex;flex-wrap:wrap;gap:6px;margin-bottom:12px}
+.pulse{animation:pulse 1.5s infinite}
+@keyframes pulse{0%,100%{opacity:1}50%{opacity:.4}}
+.mb8{margin-bottom:8px}
+.mb12{margin-bottom:12px}
+.mb16{margin-bottom:16px}
+.mt8{margin-top:8px}
+.mt12{margin-top:12px}
+.mt16{margin-top:16px}
+.label{font-size:.8rem;color:#9ca3af;margin-bottom:4px;display:block}
+.strong{color:#fff;font-weight:700}
+</style>
+</head>
+<body>
+<div class="app" id="app"></div>
+<script>
+// =====================================================
+// DONNÉES PERSONNELLES
+// =====================================================
 const CARTE = {
-  valeurs: ["Travail", "Respect", "Famille", "Discipline", "Amour", "Effort", "Détermination"],
-  forces: ["Persévérant", "Discipliné", "Physique travaillé par le sport", "Curieux", "Intelligent", "Déterminé", "Ambitieux", "Empathique"],
-  reussites: [
-    "70 jours sans alcool depuis février",
-    "Sportif — 5 séances/semaine",
-    "54 livres lus l'année passée",
-    "Lecteur quotidien à haute voix",
-    "Fonctionnaire des Nations Unies",
-    "A combattu et combat la dépression",
-    "Construit sa propre maison",
-    "Créé son propre outil TCC",
-    "Appris à parler en public",
-    "Se construit chaque jour par la discipline"
-  ],
-  croyances: [
-    "Je suis capable — je le prouve chaque jour",
-    "J'ai du respect pour moi-même",
-    "Je suis fier de moi",
-    "Je fais ce que je dis",
-    "Je peux tenir un engagement",
-    "Je peux m'en sortir",
-    "L'opinion des autres ne m'arrête pas",
-    "Les pressions internes ne m'arrêtent pas"
-  ],
-  engagements: [
-    "Me construire émotionnellement, physiquement, intellectuellement",
-    "Fonder une famille",
-    "Être en santé mentale et physique",
-    "Construire ma carrière",
-    "Investir dans mes passions"
-  ]
+  valeurs:["Travail","Respect","Famille","Discipline","Amour","Effort","Détermination"],
+  forces:["Persévérant","Discipliné","Physique travaillé par le sport","Curieux","Intelligent","Déterminé","Ambitieux","Empathique"],
+  reussites:["70 jours sans alcool depuis février","Sportif — 5 séances/semaine","54 livres lus l'année passée","Lecteur quotidien à haute voix","Fonctionnaire des Nations Unies","A combattu et combat la dépression","Construit sa propre maison","Créé son propre outil TCC","Appris à parler en public","Se construit chaque jour par la discipline"],
+  croyances:["Je suis capable — je le prouve chaque jour","J'ai du respect pour moi-même","Je suis fier de moi","Je fais ce que je dis","Je peux tenir un engagement","Je peux m'en sortir","L'opinion des autres ne m'arrête pas","Les pressions internes ne m'arrêtent pas"],
+  engagements:["Me construire émotionnellement, physiquement, intellectuellement","Fonder une famille","Être en santé mentale et physique","Construire ma carrière","Investir dans mes passions"]
+};
+const CARTE_STR = `Carte de valeur:\nValeurs: ${CARTE.valeurs.join(", ")}\nForces: ${CARTE.forces.join(", ")}\nRéussites: ${CARTE.reussites.join(" | ")}\nCroyances: ${CARTE.croyances.join(" | ")}\nEngagements: ${CARTE.engagements.join(" | ")}`;
+
+const DISTORSIONS=["Tout ou rien","Surgénéralisation","Filtre négatif","Dévalorisation du positif","Lecture des pensées","Prédiction négative","Catastrophisme","Raisonnement émotionnel","Les « je dois »","Étiquetage","Personnalisation"];
+const EMOTIONS=["Anxieux","Triste","En colère","Honteux","Coupable","Découragé","Frustré","Autre"];
+const COMPORTEMENTS=["Évitement","Isolement","Agressivité","Procrastination","Rumination","Impulsivité","Autre"];
+const STEPS=["pensee","manifestation","norme","analyse","contrearguments","ecart","besoin","evaluation"];
+const STEP_LABELS={pensee:"Voix intérieure",manifestation:"Manifestation",norme:"Norme",analyse:"Analyse",contrearguments:"Contre-arguments",ecart:"Écart",besoin:"Besoins & Actions",evaluation:"Évaluation"};
+
+// =====================================================
+// STATE
+// =====================================================
+let state = {
+  view:"home",
+  step:"pensee",
+  form:emptyForm(),
+  records:loadRecords(),
+  selected:null,
+  ai:{loading:false,field:null},
+  apiKey:localStorage.getItem("tcc_apikey")||""
 };
 
-const DISTORSIONS = [
-  "Tout ou rien", "Surgénéralisation", "Filtre négatif",
-  "Dévalorisation du positif", "Lecture des pensées", "Prédiction négative",
-  "Catastrophisme", "Raisonnement émotionnel", "Les « je dois »",
-  "Étiquetage", "Personnalisation"
-];
-
-const EMOTIONS = ["Anxieux", "Triste", "En colère", "Honteux", "Coupable", "Découragé", "Frustré", "Autre"];
-const COMPORTEMENTS = ["Évitement", "Isolement", "Agressivité", "Procrastination", "Rumination", "Impulsivité", "Autre"];
-
-const STEPS = ["pensee", "manifestation", "norme", "analyse", "contrearguments", "ecart", "besoin", "action", "evaluation"];
-const STEP_LABELS = {
-  pensee: "Pensée", manifestation: "Manifestation", norme: "Norme",
-  analyse: "Analyse", contrearguments: "Contre-arguments", ecart: "Écart",
-  besoin: "Besoin", action: "Action & Projet", evaluation: "Évaluation"
-};
-
-function PenseeStep({ form, set }) {
-  const [local, setLocal] = useState(form.pensee);
-  return (
-    <div>
-      <h2 className="text-xl font-bold mb-2">💭 Quelle est ta pensée ?</h2>
-      <p className="text-gray-400 text-sm mb-3">La pensée automatique, mot pour mot.</p>
-      <textarea
-        value={local}
-        onChange={e => setLocal(e.target.value)}
-        onBlur={() => set("pensee", local)}
-        placeholder="Ex : Je suis incompétent, je n'y arriverai jamais..."
-        className="w-full bg-gray-800 rounded-2xl p-4 text-white placeholder-gray-500 resize-none h-32 focus:outline-none focus:ring-2 focus:ring-purple-500 mb-4"
-      />
-      <p className="text-gray-400 text-sm mb-2">Niveau de conviction : <span className="text-white font-bold">{form.convictionAvant}%</span></p>
-      <input type="range" min="0" max="100" value={form.convictionAvant}
-        onChange={e => set("convictionAvant", Number(e.target.value))}
-        className="w-full accent-purple-500" />
-    </div>
-  );
+function emptyForm(){
+  return {
+    pensee:"",convictionAvant:80,
+    distorsions:[],emotions:[],comportements:[],intensiteInit:50,
+    norme:"",normeAI:"",
+    questions:[],reponses:{},
+    contrearguments:"",contreAI:"",
+    ecart:"",ecartAI:"",
+    besoins:"",action:"",projet:"",
+    convictionApres:80,intensiteApres:50,noteLibre:""
+  };
 }
 
-const callAI = async (prompt) => {
-  const res = await fetch("https://api.anthropic.com/v1/messages", {
-    method: "POST",
-    headers: { "Content-Type": "application/json" },
-    body: JSON.stringify({
-      model: "claude-sonnet-4-20250514",
-      max_tokens: 1000,
-      messages: [{ role: "user", content: prompt }]
-    })
+function loadRecords(){
+  try{return JSON.parse(localStorage.getItem("tcc_records")||"[]");}catch{return[];}
+}
+
+function saveRecords(r){
+  localStorage.setItem("tcc_records",JSON.stringify(r));
+}
+
+// =====================================================
+// AI
+// =====================================================
+async function callAI(prompt){
+  if(!state.apiKey) throw new Error("no_key");
+  const res = await fetch("https://api.anthropic.com/v1/messages",{
+    method:"POST",
+    headers:{"Content-Type":"application/json","x-api-key":state.apiKey,"anthropic-version":"2023-06-01","anthropic-dangerous-direct-browser-access":"true"},
+    body:JSON.stringify({model:"claude-sonnet-4-20250514",max_tokens:1000,messages:[{role:"user",content:prompt}]})
   });
   const data = await res.json();
-  return data.content?.[0]?.text || "";
-};
-
-function Step({ current, label }) {
-  const idx = STEPS.indexOf(current);
-  const pct = Math.round(((idx + 1) / STEPS.length) * 100);
-  return (
-    <div className="mb-4">
-      <div className="flex justify-between text-xs text-gray-400 mb-1">
-        <span>{label}</span><span>{idx + 1}/{STEPS.length}</span>
-      </div>
-      <div className="bg-gray-700 rounded-full h-2">
-        <div className="h-2 rounded-full bg-gradient-to-r from-purple-500 to-pink-500 transition-all duration-500" style={{ width: `${pct}%` }} />
-      </div>
-    </div>
-  );
+  if(data.error) throw new Error(data.error.message);
+  return data.content?.[0]?.text||"";
 }
 
-function Tag({ label, active, onClick }) {
-  return (
-    <button onClick={onClick}
-      className={`text-sm px-3 py-1 rounded-full transition-all ${active ? "bg-purple-600 text-white" : "bg-gray-800 text-gray-300"}`}>
-      {label}
-    </button>
-  );
+async function askAI(field){
+  state.ai={loading:true,field};
+  render();
+  try{
+    const f=state.form;
+    let prompt="";
+    if(field==="norme"){
+      prompt=`Tu es thérapeute TCC. Voix intérieure: "${f.pensee}". Propose 2-3 normes objectives (faits universels vérifiables) pour analyser cette pensée. Ex: "La perfection n'existe pas". Direct, sans intro.`;
+    }else if(field==="questions"){
+      prompt=`Tu es thérapeute TCC. Voix intérieure: "${f.pensee}". Génère 5 questions socratiques précises pour challenger cette pensée. Une par ligne, sans numérotation ni intro.`;
+    }else if(field==="contre"){
+      prompt=`Tu es thérapeute TCC bienveillant.\n${CARTE_STR}\n\nVoix intérieure: "${f.pensee}"\nDistorsions: ${f.distorsions.join(", ")}\nNorme: "${f.norme}"\nRéponses: ${Object.entries(f.reponses).map(([q,r])=>`Q:${q}/R:${r}`).join(" | ")}\n\nEn t'appuyant CONCRÈTEMENT sur la carte de valeur, génère 3 contre-arguments personnalisés et puissants. Direct, ancré dans sa réalité.`;
+    }else if(field==="ecart"){
+      prompt=`Tu es thérapeute TCC. Voix: "${f.pensee}". Norme: "${f.norme}". Contre-arguments: "${f.contrearguments}". Formule en 2-3 phrases l'écart entre la voix et la norme. Précis et direct.`;
+    }else if(field==="besoins"){
+      prompt=`Tu es thérapeute TCC.\n${CARTE_STR}\nVoix: "${f.pensee}"\nÉcart: "${f.ecart}"\nÉmotions: ${f.emotions.join(", ")}\n\nIdentifie 2-3 besoins psychologiques derrière cette voix.\nFormat strict:\nBESOINS: ...\nACTION: ...\nPROJET: ...`;
+    }
+    const result = await callAI(prompt);
+    if(field==="questions"){
+      state.form.questions=result.split("\n").map(q=>q.trim()).filter(q=>q.length>5);
+    }else if(field==="norme"){state.form.normeAI=result;}
+    else if(field==="contre"){state.form.contreAI=result;}
+    else if(field==="ecart"){state.form.ecartAI=result;}
+    else if(field==="besoins"){
+      const lines=result.split("\n");
+      state.form.besoins=lines.find(l=>l.startsWith("BESOINS"))?.replace("BESOINS:","").trim()||result;
+      state.form.action=lines.find(l=>l.startsWith("ACTION"))?.replace(/ACTION.*:/,"").trim()||"";
+      state.form.projet=lines.find(l=>l.startsWith("PROJET"))?.replace(/PROJET.*:/,"").trim()||"";
+    }
+  }catch(e){
+    if(e.message==="no_key") alert("⚙️ Entre ta clé API dans Paramètres.");
+    else alert("Erreur IA : "+e.message);
+  }
+  state.ai={loading:false,field:null};
+  render();
 }
 
-function AIBox({ loading, text, onUse, label = "Suggestion IA" }) {
-  if (!text && !loading) return null;
-  return (
-    <div className="bg-purple-950 border border-purple-700 rounded-xl p-3 mb-3 text-sm">
-      <p className="text-xs text-purple-300 mb-1">🤖 {label}</p>
-      {loading ? <p className="text-gray-400 animate-pulse">Génération en cours...</p> : (
-        <>
-          <p className="text-purple-100 whitespace-pre-wrap">{text}</p>
-          {onUse && <button onClick={onUse} className="mt-2 text-xs text-purple-300 underline">Utiliser</button>}
-        </>
-      )}
-    </div>
-  );
+// =====================================================
+// HELPERS
+// =====================================================
+function setView(v){state.view=v;render();}
+function setStep(s){state.step=s;render();}
+function nextStep(){const i=STEPS.indexOf(state.step);if(i<STEPS.length-1)setStep(STEPS[i+1]);}
+function prevStep(){const i=STEPS.indexOf(state.step);if(i>0)setStep(STEPS[i-1]);}
+function setForm(k,v){state.form[k]=v;render();}
+function toggleArr(k,v){
+  state.form[k]=state.form[k].includes(v)?state.form[k].filter(x=>x!==v):[...state.form[k],v];
+  render();
+}
+function finalize(){
+  const record={...state.form,date:new Date().toISOString(),id:Date.now()};
+  state.records=[record,...state.records];
+  saveRecords(state.records);
+  state.form=emptyForm();
+  state.step="pensee";
+  state.view="home";
+  render();
+}
+function exportTxt(){
+  const lines=state.records.map(r=>[
+    `=== ${new Date(r.date).toLocaleDateString("fr-FR")} ===`,
+    `VOIX: ${r.pensee}`,`CONVICTION: ${r.convictionAvant}% → ${r.convictionApres}%`,
+    `ÉMOTIONS: ${r.emotions.join(", ")}`,`NORME: ${r.norme}`,
+    `CONTRE-ARGUMENTS: ${r.contrearguments}`,`ÉCART: ${r.ecart}`,
+    `BESOINS: ${r.besoins}`,`ACTION: ${r.action}`,`PROJET: ${r.projet}`,
+    `NOTE: ${r.noteLibre}`,""
+  ].join("\n")).join("\n");
+  dl(lines,"tcc.txt","text/plain");
+}
+function exportJson(){
+  dl(JSON.stringify(state.records,null,2),"tcc.json","application/json");
+}
+function dl(content,name,type){
+  const a=document.createElement("a");
+  a.href=URL.createObjectURL(new Blob([content],{type}));
+  a.download=name;a.click();
 }
 
-export default function App() {
-  const [view, setView] = useState("home");
-  const [step, setStep] = useState("pensee");
-  const [form, setForm] = useState({
-    pensee: "", intensiteInit: 50,
-    distorsions: [], emotions: [], comportements: [],
-    norme: "", normeAI: "",
-    questions: [], reponses: {},
-    contrearguments: "", contreAI: "",
-    ecart: "", ecartAI: "",
-    besoins: "",
-    action: "", projet: "",
-    convictionAvant: 80, convictionApres: 80, intensiteApres: 50, noteLibre: ""
-  });
-  const [records, setRecords] = useState([]);
-  const [selected, setSelected] = useState(null);
-  const [ai, setAi] = useState({ loading: false, field: null });
-
-  useEffect(() => {
-    const load = async () => {
-      try {
-        const res = await window.storage.get("tcc2_records");
-        if (res) setRecords(JSON.parse(res.value));
-      } catch {}
-    };
-    load();
-  }, []);
-
-  const saveRecords = async (updated) => {
-    try { await window.storage.set("tcc2_records", JSON.stringify(updated)); } catch {}
-  };
-
-  const reset = () => {
-    setForm({
-      pensee: "", intensiteInit: 50,
-      distorsions: [], emotions: [], comportements: [],
-      norme: "", normeAI: "",
-      questions: [], reponses: {},
-      contrearguments: "", contreAI: "",
-      ecart: "", ecartAI: "",
-      besoins: "",
-      action: "", projet: "",
-      convictionAvant: 80, convictionApres: 80, intensiteApres: 50, noteLibre: ""
-    });
-    setStep("pensee");
-    setAi({ loading: false, field: null });
-  };
-
-  const set = (key, val) => setForm(f => ({ ...f, [key]: val }));
-  const toggleArr = (key, val) => setForm(f => ({
-    ...f, [key]: f[key].includes(val) ? f[key].filter(x => x !== val) : [...f[key], val]
-  }));
-
-  const askAI = async (field) => {
-    setAi({ loading: true, field });
-    try {
-      let prompt = "";
-      const carteStr = `Carte de valeur de l'utilisateur:
-Valeurs: ${CARTE.valeurs.join(", ")}
-Forces: ${CARTE.forces.join(", ")}
-Réussites: ${CARTE.reussites.join(" | ")}
-Croyances positives: ${CARTE.croyances.join(" | ")}
-Engagements: ${CARTE.engagements.join(" | ")}`;
-
-      if (field === "questions") {
-        prompt = `Tu es thérapeute TCC. L'utilisateur a cette pensée automatique: "${form.pensee}".
-Génère 5 questions d'analyse socratiques précises et percutantes pour challenger cette pensée spécifique.
-Réponds UNIQUEMENT avec les 5 questions, une par ligne, sans numérotation ni intro.`;
-      } else if (field === "norme") {
-        prompt = `Tu es thérapeute TCC. Pensée: "${form.pensee}".
-Propose 2-3 normes objectives (faits universels, principes vérifiables) qui permettent d'analyser cette pensée.
-Ex: "La perfection n'existe pas", "Tout le monde a droit à l'erreur".
-Sois direct, sans intro.`;
-      } else if (field === "contre") {
-        prompt = `Tu es thérapeute TCC bienveillant.
-${carteStr}
-
-Pensée défectueuse: "${form.pensee}"
-Distorsions: ${form.distorsions.join(", ")}
-Norme: "${form.norme}"
-Réponses au questionnement: ${Object.entries(form.reponses).map(([q,r]) => `Q: ${q} / R: ${r}`).join(" | ")}
-
-En t'appuyant CONCRÈTEMENT sur la carte de valeur de cet homme (ses réussites, forces, croyances), génère 3 contre-arguments personnalisés et puissants qui contredisent la pensée défectueuse.
-Sois direct et ancré dans sa réalité. Sans intro.`;
-      } else if (field === "ecart") {
-        prompt = `Tu es thérapeute TCC.
-Pensée: "${form.pensee}"
-Norme: "${form.norme}"
-Contre-arguments: "${form.contrearguments}"
-
-Formule en 2-3 phrases l'écart constaté entre la pensée défectueuse et la norme. Qu'est-ce qui ne colle pas ? Sois précis et direct.`;
-      } else if (field === "besoins") {
-        prompt = `Tu es thérapeute TCC.
-${carteStr}
-Pensée: "${form.pensee}"
-Écart: "${form.ecart}"
-Émotions: ${form.emotions.join(", ")}
-
-Identifie 2-3 besoins psychologiques derrière cette pensée (ex: confiance en soi, sécurité, reconnaissance, clarté...).
-Propose aussi une action immédiate (5 min) et un projet à long terme pour répondre à ces besoins.
-Format: 
-BESOINS: ...
-ACTION (5 min): ...
-PROJET (long terme): ...`;
-      }
-
-      const result = await callAI(prompt);
-
-      if (field === "questions") {
-        const qs = result.split("\n").map(q => q.trim()).filter(q => q.length > 5);
-        setForm(f => ({ ...f, questions: qs }));
-      } else if (field === "norme") {
-        setForm(f => ({ ...f, normeAI: result }));
-      } else if (field === "contre") {
-        setForm(f => ({ ...f, contreAI: result }));
-      } else if (field === "ecart") {
-        setForm(f => ({ ...f, ecartAI: result }));
-      } else if (field === "besoins") {
-        const lines = result.split("\n");
-        const besoins = lines.find(l => l.startsWith("BESOINS"))?.replace("BESOINS:", "").trim() || "";
-        const action = lines.find(l => l.startsWith("ACTION"))?.replace(/ACTION.*:/, "").trim() || "";
-        const projet = lines.find(l => l.startsWith("PROJET"))?.replace(/PROJET.*:/, "").trim() || "";
-        setForm(f => ({ ...f, besoins: besoins || result, action: action, projet: projet }));
-      }
-    } catch { }
-    setAi({ loading: false, field: null });
-  };
-
-  const next = () => { const i = STEPS.indexOf(step); if (i < STEPS.length - 1) setStep(STEPS[i + 1]); };
-  const prev = () => { const i = STEPS.indexOf(step); if (i > 0) setStep(STEPS[i - 1]); };
-
-  const finalize = async () => {
-    const record = { ...form, date: new Date().toISOString(), id: Date.now() };
-    const updated = [record, ...records];
-    setRecords(updated);
-    await saveRecords(updated);
-    setView("home");
-    reset();
-  };
-
-  const isLoading = (f) => ai.loading && ai.field === f;
-
-  // HOME
-  if (view === "home") return (
-    <div className="min-h-screen bg-gray-950 text-white p-4 max-w-md mx-auto flex flex-col">
-      <h1 className="text-2xl font-bold text-center mb-1">🧠 Mon TCC</h1>
-      <p className="text-center text-gray-400 text-sm mb-8">Restructuration cognitive personnalisée</p>
-      <button onClick={() => { reset(); setView("new"); }}
-        className="bg-gradient-to-r from-purple-600 to-pink-600 py-4 rounded-2xl font-bold text-lg mb-3">
-        + Nouvelle séance
-      </button>
-      <button onClick={() => setView("history")}
-        className="bg-gray-800 py-4 rounded-2xl font-bold text-lg mb-3">
-        📋 Historique ({records.length})
-      </button>
-      <button onClick={() => setView("carte")}
-        className="bg-gray-800 py-4 rounded-2xl font-bold text-lg">
-        🗺️ Ma carte de valeur
-      </button>
-      {records.length > 0 && (
-        <div className="mt-6">
-          <p className="text-gray-400 text-sm mb-2">Dernière séance</p>
-          <div className="bg-gray-800 rounded-2xl p-4 cursor-pointer" onClick={() => { setSelected(records[0]); setView("detail"); }}>
-            <p className="text-xs text-gray-500 mb-1">{new Date(records[0].date).toLocaleDateString("fr-FR", { day: "numeric", month: "long" })}</p>
-            <p className="font-medium truncate">{records[0].pensee}</p>
-            <p className="text-sm text-gray-400 mt-1">Conviction {records[0].convictionAvant}% → {records[0].convictionApres}%</p>
-          </div>
-        </div>
-      )}
-    </div>
-  );
-
-  // CARTE
-  if (view === "carte") return (
-    <div className="min-h-screen bg-gray-950 text-white p-4 max-w-md mx-auto">
-      <button onClick={() => setView("home")} className="text-gray-400 text-sm mb-4 block">← Retour</button>
-      <h2 className="text-xl font-bold mb-4">🗺️ Ma Carte de Valeur</h2>
-      {[
-        { title: "⚡ Valeurs", items: CARTE.valeurs },
-        { title: "💪 Forces", items: CARTE.forces },
-        { title: "🏆 Réussites", items: CARTE.reussites },
-        { title: "🧠 Croyances", items: CARTE.croyances },
-        { title: "🎯 Engagements", items: CARTE.engagements },
-      ].map(s => (
-        <div key={s.title} className="bg-gray-800 rounded-2xl p-4 mb-3">
-          <p className="font-bold mb-2">{s.title}</p>
-          <div className="flex flex-wrap gap-2">
-            {s.items.map(i => <span key={i} className="bg-gray-700 text-sm px-3 py-1 rounded-full text-gray-200">{i}</span>)}
-          </div>
-        </div>
-      ))}
-    </div>
-  );
-
-  // HISTORY
-  if (view === "history") return (
-    <div className="min-h-screen bg-gray-950 text-white p-4 max-w-md mx-auto">
-      <button onClick={() => setView("home")} className="text-gray-400 text-sm mb-4 block">← Retour</button>
-      <h2 className="text-xl font-bold mb-4">📋 Historique</h2>
-      {records.length === 0 && <p className="text-gray-500 text-center mt-10">Aucune séance encore.</p>}
-      <div className="flex flex-col gap-3">
-        {records.map(r => (
-          <div key={r.id} className="bg-gray-800 rounded-2xl p-4 cursor-pointer" onClick={() => { setSelected(r); setView("detail"); }}>
-            <p className="text-xs text-gray-500 mb-1">{new Date(r.date).toLocaleDateString("fr-FR", { day: "numeric", month: "long", year: "numeric" })}</p>
-            <p className="font-medium truncate">{r.pensee}</p>
-            <p className="text-sm text-gray-400 mt-1">Conviction {r.convictionAvant}% → {r.convictionApres}%</p>
-          </div>
-        ))}
-      </div>
-    </div>
-  );
-
-  // DETAIL
-  if (view === "detail" && selected) return (
-    <div className="min-h-screen bg-gray-950 text-white p-4 max-w-md mx-auto">
-      <button onClick={() => setView("history")} className="text-gray-400 text-sm mb-4 block">← Retour</button>
-      <h2 className="text-xl font-bold mb-4">Détail séance</h2>
-      {[
-        { label: "Pensée", val: selected.pensee },
-        { label: "Distorsions", val: selected.distorsions.join(", ") || "—" },
-        { label: "Émotions", val: selected.emotions.join(", ") || "—" },
-        { label: "Norme", val: selected.norme },
-        { label: "Contre-arguments", val: selected.contrearguments },
-        { label: "Écart", val: selected.ecart },
-        { label: "Besoins", val: selected.besoins },
-        { label: "Action (5 min)", val: selected.action },
-        { label: "Projet", val: selected.projet },
-        { label: "Conviction", val: `${selected.convictionAvant}% → ${selected.convictionApres}%` },
-        { label: "Note", val: selected.noteLibre },
-      ].map(({ label, val }) => val ? (
-        <div key={label} className="bg-gray-800 rounded-2xl p-4 mb-2">
-          <p className="text-xs text-gray-400 mb-1">{label}</p>
-          <p>{val}</p>
-        </div>
-      ) : null)}
-      <button onClick={async () => {
-        const updated = records.filter(r => r.id !== selected.id);
-        setRecords(updated);
-        await saveRecords(updated);
-        setView("history");
-      }} className="mt-4 w-full bg-red-900 text-red-300 py-3 rounded-2xl text-sm font-semibold">
-        🗑️ Supprimer
-      </button>
-    </div>
-  );
-
-  // NEW
-  return (
-    <div className="min-h-screen bg-gray-950 text-white p-4 max-w-md mx-auto flex flex-col">
-      <button onClick={() => setView("home")} className="text-gray-400 text-sm mb-2 self-start">← Annuler</button>
-      <Step current={step} label={STEP_LABELS[step]} />
-
-      <div className="flex-1 overflow-y-auto">
-
-        {/* PENSEE */}
-        {step === "pensee" && (
-          <PenseeStep form={form} set={set} />
-        )}
-
-        {/* MANIFESTATION */}
-        {step === "manifestation" && (
-          <div>
-            <h2 className="text-xl font-bold mb-2">🔍 Comment ça se manifeste ?</h2>
-            <p className="text-gray-400 text-sm mb-3">Distorsions cognitives</p>
-            <div className="flex flex-wrap gap-2 mb-4">
-              {DISTORSIONS.map(d => <Tag key={d} label={d} active={form.distorsions.includes(d)} onClick={() => toggleArr("distorsions", d)} />)}
-            </div>
-            <p className="text-gray-400 text-sm mb-2">Émotions</p>
-            <div className="flex flex-wrap gap-2 mb-4">
-              {EMOTIONS.map(e => <Tag key={e} label={e} active={form.emotions.includes(e)} onClick={() => toggleArr("emotions", e)} />)}
-            </div>
-            <p className="text-gray-400 text-sm mb-2">Comportements</p>
-            <div className="flex flex-wrap gap-2 mb-4">
-              {COMPORTEMENTS.map(c => <Tag key={c} label={c} active={form.comportements.includes(c)} onClick={() => toggleArr("comportements", c)} />)}
-            </div>
-            <p className="text-gray-400 text-sm mb-2">Intensité émotionnelle : <span className="text-white font-bold">{form.intensiteInit}/100</span></p>
-            <input type="range" min="0" max="100" value={form.intensiteInit}
-              onChange={e => set("intensiteInit", Number(e.target.value))}
-              className="w-full accent-purple-500" />
-          </div>
-        )}
-
-        {/* NORME */}
-        {step === "norme" && (
-          <div>
-            <h2 className="text-xl font-bold mb-2">⚖️ Quelle est la norme ?</h2>
-            <p className="text-gray-400 text-sm mb-3">Le fait objectif et universel qui permet d'analyser cette pensée.</p>
-            <button onClick={() => askAI("norme")} disabled={isLoading("norme")}
-              className="w-full bg-gradient-to-r from-purple-600 to-pink-600 py-3 rounded-xl text-sm font-semibold mb-3 disabled:opacity-50">
-              {isLoading("norme") ? "⏳ Génération..." : "🤖 Suggérer des normes"}
-            </button>
-            <AIBox loading={isLoading("norme")} text={form.normeAI}
-              onUse={() => set("norme", form.normeAI)} label="Normes suggérées" />
-            <textarea value={form.norme} onChange={e => set("norme", e.target.value)}
-              placeholder="Ex : La perfection n'existe pas. Tout le monde a droit à l'erreur..."
-              className="w-full bg-gray-800 rounded-2xl p-4 text-white placeholder-gray-500 resize-none h-28 focus:outline-none focus:ring-2 focus:ring-purple-500" />
-          </div>
-        )}
-
-        {/* ANALYSE */}
-        {step === "analyse" && (
-          <div>
-            <h2 className="text-xl font-bold mb-2">🗣️ Analyse</h2>
-            <p className="text-gray-400 text-sm mb-3">Questions pour challenger ta pensée.</p>
-            <button onClick={() => askAI("questions")} disabled={isLoading("questions")}
-              className="w-full bg-gradient-to-r from-purple-600 to-pink-600 py-3 rounded-xl text-sm font-semibold mb-3 disabled:opacity-50">
-              {isLoading("questions") ? "⏳ Génération..." : "🤖 Générer les questions"}
-            </button>
-            {form.questions.length === 0 && !isLoading("questions") && (
-              <p className="text-gray-500 text-sm text-center mb-3">Appuie sur le bouton pour générer des questions personnalisées.</p>
-            )}
-            {isLoading("questions") && <p className="text-gray-400 animate-pulse text-sm text-center mb-3">Génération en cours...</p>}
-            <div className="flex flex-col gap-3">
-              {form.questions.map(q => (
-                <div key={q} className="bg-gray-800 rounded-2xl p-3">
-                  <p className="text-sm font-medium text-purple-300 mb-2">{q}</p>
-                  <textarea value={form.reponses[q] || ""} onChange={e => setForm(f => ({ ...f, reponses: { ...f.reponses, [q]: e.target.value } }))}
-                    placeholder="Ta réponse..."
-                    className="w-full bg-gray-700 rounded-xl p-2 text-white placeholder-gray-500 resize-none h-16 text-sm focus:outline-none" />
-                </div>
-              ))}
-            </div>
-          </div>
-        )}
-
-        {/* CONTRE-ARGUMENTS */}
-        {step === "contrearguments" && (
-          <div>
-            <h2 className="text-xl font-bold mb-2">🛡️ Contre-arguments</h2>
-            <p className="text-gray-400 text-sm mb-3">L'IA va puiser dans ta carte de valeur pour te contredire.</p>
-            <button onClick={() => askAI("contre")} disabled={isLoading("contre")}
-              className="w-full bg-gradient-to-r from-purple-600 to-pink-600 py-3 rounded-xl text-sm font-semibold mb-3 disabled:opacity-50">
-              {isLoading("contre") ? "⏳ Génération..." : "🤖 Générer depuis ma carte de valeur"}
-            </button>
-            <AIBox loading={isLoading("contre")} text={form.contreAI}
-              onUse={() => set("contrearguments", form.contreAI)} />
-            <textarea value={form.contrearguments} onChange={e => set("contrearguments", e.target.value)}
-              placeholder="Tes contre-arguments..."
-              className="w-full bg-gray-800 rounded-2xl p-4 text-white placeholder-gray-500 resize-none h-32 focus:outline-none focus:ring-2 focus:ring-purple-500" />
-          </div>
-        )}
-
-        {/* ECART */}
-        {step === "ecart" && (
-          <div>
-            <h2 className="text-xl font-bold mb-2">📐 Écart constaté</h2>
-            <p className="text-gray-400 text-sm mb-3">Qu'est-ce qui sépare ta pensée de la norme ?</p>
-            <button onClick={() => askAI("ecart")} disabled={isLoading("ecart")}
-              className="w-full bg-gradient-to-r from-purple-600 to-pink-600 py-3 rounded-xl text-sm font-semibold mb-3 disabled:opacity-50">
-              {isLoading("ecart") ? "⏳ Génération..." : "🤖 Analyser l'écart"}
-            </button>
-            <AIBox loading={isLoading("ecart")} text={form.ecartAI}
-              onUse={() => set("ecart", form.ecartAI)} />
-            <textarea value={form.ecart} onChange={e => set("ecart", e.target.value)}
-              placeholder="L'écart entre ma pensée et la norme..."
-              className="w-full bg-gray-800 rounded-2xl p-4 text-white placeholder-gray-500 resize-none h-28 focus:outline-none focus:ring-2 focus:ring-purple-500" />
-          </div>
-        )}
-
-        {/* BESOIN + ACTION */}
-        {step === "besoin" && (
-          <div>
-            <h2 className="text-xl font-bold mb-2">🎯 Besoins & Actions</h2>
-            <p className="text-gray-400 text-sm mb-3">Quel besoin se cache derrière ? Que faire ?</p>
-            <button onClick={() => askAI("besoins")} disabled={isLoading("besoins")}
-              className="w-full bg-gradient-to-r from-purple-600 to-pink-600 py-3 rounded-xl text-sm font-semibold mb-3 disabled:opacity-50">
-              {isLoading("besoins") ? "⏳ Génération..." : "🤖 Identifier besoins & actions"}
-            </button>
-            {isLoading("besoins") && <p className="text-gray-400 animate-pulse text-sm text-center mb-3">Génération en cours...</p>}
-            <p className="text-gray-400 text-sm mb-1">Besoins identifiés</p>
-            <textarea value={form.besoins} onChange={e => set("besoins", e.target.value)}
-              placeholder="Ex : Confiance en soi, clarté, sécurité..."
-              className="w-full bg-gray-800 rounded-2xl p-3 text-white placeholder-gray-500 resize-none h-20 focus:outline-none focus:ring-2 focus:ring-purple-500 mb-3" />
-            <p className="text-gray-400 text-sm mb-1">⚡ Action immédiate (5 min)</p>
-            <textarea value={form.action} onChange={e => set("action", e.target.value)}
-              placeholder="Ex : Respirer 5 min, écrire 3 réussites..."
-              className="w-full bg-gray-800 rounded-2xl p-3 text-white placeholder-gray-500 resize-none h-20 focus:outline-none focus:ring-2 focus:ring-purple-500 mb-3" />
-            <p className="text-gray-400 text-sm mb-1">🗓️ Projet (long terme)</p>
-            <textarea value={form.projet} onChange={e => set("projet", e.target.value)}
-              placeholder="Ex : Travailler la confiance en soi par la lecture, méditer chaque jour..."
-              className="w-full bg-gray-800 rounded-2xl p-3 text-white placeholder-gray-500 resize-none h-20 focus:outline-none focus:ring-2 focus:ring-purple-500" />
-          </div>
-        )}
-
-        {/* EVALUATION */}
-        {step === "evaluation" && (
-          <div>
-            <h2 className="text-xl font-bold mb-2">📊 Évaluation</h2>
-            <div className="bg-gray-800 rounded-2xl p-4 mb-4 text-sm italic text-gray-300">"{form.pensee}"</div>
-            <p className="text-gray-400 text-sm mb-2">Conviction dans cette pensée maintenant : <span className="text-white font-bold">{form.convictionApres}%</span></p>
-            <input type="range" min="0" max="100" value={form.convictionApres}
-              onChange={e => set("convictionApres", Number(e.target.value))}
-              className="w-full accent-purple-500 mb-4" />
-            <p className="text-gray-400 text-sm mb-2">Intensité émotionnelle maintenant : <span className="text-white font-bold">{form.intensiteApres}/100</span></p>
-            <input type="range" min="0" max="100" value={form.intensiteApres}
-              onChange={e => set("intensiteApres", Number(e.target.value))}
-              className="w-full accent-green-500 mb-4" />
-            <div className="grid grid-cols-2 gap-3 mb-4">
-              <div className="bg-gray-800 rounded-2xl p-3 text-center">
-                <p className="text-xs text-gray-400">Conviction</p>
-                <p className={`text-2xl font-bold ${form.convictionAvant - form.convictionApres > 0 ? "text-green-400" : "text-orange-400"}`}>
-                  -{Math.abs(form.convictionAvant - form.convictionApres)}%
-                </p>
-              </div>
-              <div className="bg-gray-800 rounded-2xl p-3 text-center">
-                <p className="text-xs text-gray-400">Intensité</p>
-                <p className={`text-2xl font-bold ${form.intensiteInit - form.intensiteApres > 0 ? "text-green-400" : "text-orange-400"}`}>
-                  -{Math.abs(form.intensiteInit - form.intensiteApres)} pts
-                </p>
-              </div>
-            </div>
-            <p className="text-gray-400 text-sm mb-2">Note libre</p>
-            <textarea value={form.noteLibre} onChange={e => set("noteLibre", e.target.value)}
-              placeholder="Comment tu te sens après cette séance ?"
-              className="w-full bg-gray-800 rounded-2xl p-4 text-white placeholder-gray-500 resize-none h-24 focus:outline-none focus:ring-2 focus:ring-purple-500" />
-          </div>
-        )}
-      </div>
-
-      {/* NAV */}
-      <div className="flex gap-3 mt-4 pt-2">
-        {step !== STEPS[0] && (
-          <button onClick={prev} className="flex-1 bg-gray-800 py-4 rounded-2xl font-semibold">← Retour</button>
-        )}
-        {step !== "evaluation" ? (
-          <button onClick={next} disabled={step === "pensee" && !form.pensee.trim()}
-            className="flex-1 bg-gradient-to-r from-purple-600 to-pink-600 py-4 rounded-2xl font-semibold disabled:opacity-40">
-            Suivant →
-          </button>
-        ) : (
-          <button onClick={finalize}
-            className="flex-1 bg-gradient-to-r from-green-600 to-teal-600 py-4 rounded-2xl font-bold">
-            ✅ Terminer
-          </button>
-        )}
-      </div>
-    </div>
-  );
+// =====================================================
+// RENDER HELPERS
+// =====================================================
+function progressBar(){
+  const idx=STEPS.indexOf(state.step);
+  const pct=Math.round(((idx+1)/STEPS.length)*100);
+  return `<div class="progress-header"><span>${STEP_LABELS[state.step]}</span><span>${idx+1}/${STEPS.length}</span></div>
+<div class="progress-bar"><div class="progress-fill" style="width:${pct}%"></div></div>`;
 }
+function tags(arr,sel,key){
+  return arr.map(t=>`<button class="tag ${sel.includes(t)?"tag-on":"tag-off"}" onclick="toggleArr('${key}','${t.replace(/'/g,"\\'")}')">${t}</button>`).join("");
+}
+function aiBox(text,field,onUseJs){
+  const loading=state.ai.loading&&state.ai.field===field;
+  if(!text&&!loading)return"";
+  return `<div class="ai-box"><div class="ai-label">🤖 Suggestion IA</div>
+${loading?`<div class="ai-text pulse">Génération en cours...</div>`:`<div class="ai-text">${esc(text)}</div>${onUseJs?`<button class="ai-use" onclick="${onUseJs}">Utiliser</button>`:""}`}
+</div>`;
+}
+function aiBtnTxt(field,label){
+  return state.ai.loading&&state.ai.field===field?"⏳ Génération...":label;
+}
+function navRow(canNext=true){
+  const idx=STEPS.indexOf(state.step);
+  const isLast=idx===STEPS.length-1;
+  return `<div class="nav-row">
+${idx>0?`<button class="btn btn-secondary" onclick="prevStep()">← Retour</button>`:""}
+${!isLast
+  ?`<button class="btn btn-primary" onclick="nextStep()" ${!canNext?"disabled":""}>Suivant →</button>`
+  :`<button class="btn btn-success" onclick="finalize()">✅ Terminer la séance</button>`}
+</div>`;
+}
+function esc(s){return(s||"").replace(/&/g,"&amp;").replace(/</g,"&lt;").replace(/>/g,"&gt;");}
+
+// =====================================================
+// VIEWS
+// =====================================================
+function renderHome(){
+  const last=state.records[0];
+  return `<h1>🧠 Mon TCC</h1>
+<p class="sub" style="text-align:center;margin-bottom:24px">Restructuration cognitive personnalisée</p>
+<button class="btn btn-primary mb12" onclick="state.form=emptyForm();state.step='pensee';setView('new')">+ Nouvelle séance</button>
+<button class="btn btn-secondary mb12" onclick="setView('history')">📋 Historique (${state.records.length})</button>
+<button class="btn btn-secondary mb12" onclick="setView('carte')">🗺️ Ma carte de valeur</button>
+<button class="btn btn-secondary" onclick="setView('settings')">⚙️ Paramètres</button>
+${last?`<div class="section-title">Dernière séance</div>
+<div class="record-card" onclick="state.selected=state.records[0];setView('detail')">
+<div class="record-date">${new Date(last.date).toLocaleDateString("fr-FR",{day:"numeric",month:"long"})}</div>
+<div class="record-pensee">${esc(last.pensee)}</div>
+<div class="record-meta">Conviction ${last.convictionAvant}% → ${last.convictionApres}%</div>
+</div>`:""}`;
+}
+
+function renderCarte(){
+  const secs=[
+    {t:"⚡ Valeurs",i:CARTE.valeurs},{t:"💪 Forces",i:CARTE.forces},
+    {t:"🏆 Réussites",i:CARTE.reussites},{t:"🧠 Croyances",i:CARTE.croyances},
+    {t:"🎯 Engagements",i:CARTE.engagements}
+  ];
+  return `<button class="back-btn" onclick="setView('home')">← Retour</button>
+<h2>🗺️ Ma Carte de Valeur</h2>
+${secs.map(s=>`<div class="card"><div style="font-weight:700;margin-bottom:8px">${s.t}</div>
+<div class="wrap">${s.i.map(x=>`<span class="tag tag-off" style="cursor:default">${esc(x)}</span>`).join("")}</div></div>`).join("")}`;
+}
+
+function renderHistory(){
+  return `<button class="back-btn" onclick="setView('home')">← Retour</button>
+<h2>📋 Historique</h2>
+<div style="display:flex;gap:8px;margin-bottom:16px">
+<button class="btn-sm" onclick="exportTxt()">📄 Export TXT</button>
+<button class="btn-sm" onclick="exportJson()">💾 Export JSON</button>
+</div>
+${state.records.length===0?`<p class="sub" style="text-align:center;margin-top:40px">Aucune séance encore.</p>`:""}
+${state.records.map(r=>`<div class="record-card" onclick="state.selected=state.records.find(x=>x.id===${r.id});setView('detail')">
+<div class="record-date">${new Date(r.date).toLocaleDateString("fr-FR",{day:"numeric",month:"long",year:"numeric"})}</div>
+<div class="record-pensee">${esc(r.pensee)}</div>
+<div class="record-meta">${esc(r.emotions.join(", ")||"—")} · Conviction ${r.convictionAvant}% → ${r.convictionApres}%</div>
+</div>`).join("")}`;
+}
+
+function renderDetail(){
+  const r=state.selected;if(!r)return"";
+  const fields=[
+    {l:"Voix intérieure",v:r.pensee},{l:"Distorsions",v:r.distorsions.join(", ")||"—"},
+    {l:"Émotions",v:r.emotions.join(", ")||"—"},{l:"Norme",v:r.norme},
+    {l:"Contre-arguments",v:r.contrearguments},{l:"Écart",v:r.ecart},
+    {l:"Besoins",v:r.besoins},{l:"Action (5 min)",v:r.action},{l:"Projet",v:r.projet},
+    {l:"Conviction",v:`${r.convictionAvant}% → ${r.convictionApres}%`},
+    {l:"Intensité",v:`${r.intensiteInit} → ${r.intensiteApres}`},{l:"Note",v:r.noteLibre}
+  ];
+  return `<button class="back-btn" onclick="setView('history')">← Retour</button>
+<h2>Détail séance</h2>
+${fields.filter(f=>f.v).map(f=>`<div class="card"><div class="card-label">${f.l}</div><div>${esc(f.v)}</div></div>`).join("")}
+<button class="btn btn-danger mt16" onclick="state.records=state.records.filter(x=>x.id!==${r.id});saveRecords(state.records);setView('history')">🗑️ Supprimer</button>`;
+}
+
+function renderSettings(){
+  return `<button class="back-btn" onclick="setView('home')">← Retour</button>
+<h2>⚙️ Paramètres</h2>
+<div class="card">
+<div style="font-weight:700;margin-bottom:8px">Clé API Anthropic</div>
+<p class="sub">Nécessaire pour les suggestions IA. Gratuite sur console.anthropic.com</p>
+<input class="api-input" type="password" placeholder="sk-ant-..." value="${state.apiKey}" id="apiKeyInput"/>
+<button class="btn btn-primary mt8" onclick="state.apiKey=document.getElementById('apiKeyInput').value;localStorage.setItem('tcc_apikey',state.apiKey);alert('✅ Clé sauvegardée !')">Sauvegarder</button>
+</div>
+<div class="card mt12">
+<div style="font-weight:700;margin-bottom:8px">Données</div>
+<p class="sub">${state.records.length} séance(s) enregistrée(s)</p>
+<div style="display:flex;gap:8px;margin-top:8px">
+<button class="btn-sm" onclick="exportTxt()">📄 Export TXT</button>
+<button class="btn-sm" onclick="exportJson()">💾 Export JSON</button>
+</div>
+</div>
+<div class="card mt12">
+<div style="font-weight:700;margin-bottom:8px">Installer l'app</div>
+<p class="sub">iPhone : Safari → Partager → Sur l'écran d'accueil</p>
+<p class="sub">Android : Chrome → Menu → Ajouter à l'écran d'accueil</p>
+</div>`;
+}
+
+function renderNew(){
+  const f=state.form;
+  const load=field=>state.ai.loading&&state.ai.field===field;
+  let content="";
+
+  if(state.step==="pensee"){
+    content=`<h2>💭 Quelle est la voix intérieure ?</h2>
+<p class="sub">Ce que la voix dit, mot pour mot.</p>
+<textarea id="penseeInput" rows="5" placeholder="Ex : Je suis incompétent, je n'y arriverai jamais..."
+  onblur="setForm('pensee',this.value)">${esc(f.pensee)}</textarea>
+<div class="mt16">
+<p class="sub">Niveau de conviction : <span class="strong">${f.convictionAvant}%</span></p>
+<input type="range" min="0" max="100" value="${f.convictionAvant}" oninput="setForm('convictionAvant',+this.value)"/>
+</div>
+${navRow(f.pensee.trim().length>0||true)}`;
+
+  }else if(state.step==="manifestation"){
+    content=`<h2>🔍 Comment ça se manifeste ?</h2>
+<p class="sub">Distorsions cognitives</p>
+<div class="wrap">${tags(DISTORSIONS,f.distorsions,"distorsions")}</div>
+<p class="sub">Émotions</p>
+<div class="wrap">${tags(EMOTIONS,f.emotions,"emotions")}</div>
+<p class="sub">Comportements</p>
+<div class="wrap">${tags(COMPORTEMENTS,f.comportements,"comportements")}</div>
+<p class="sub">Intensité émotionnelle : <span class="strong">${f.intensiteInit}/100</span></p>
+<input type="range" min="0" max="100" value="${f.intensiteInit}" oninput="setForm('intensiteInit',+this.value)"/>
+${navRow()}`;
+
+  }else if(state.step==="norme"){
+    content=`<h2>⚖️ Quelle est la norme ?</h2>
+<p class="sub">Le fait objectif et universel qui permet d'analyser cette voix.</p>
+<button class="btn btn-primary mb12" onclick="askAI('norme')" ${load("norme")?"disabled":""}>${aiBtnTxt("norme","🤖 Suggérer des normes")}</button>
+${aiBox(f.normeAI,"norme","setForm('norme',state.form.normeAI)")}
+<textarea rows="4" placeholder="Ex : La perfection n'existe pas..."
+  onblur="setForm('norme',this.value)">${esc(f.norme)}</textarea>
+${navRow()}`;
+
+  }else if(state.step==="analyse"){
+    content=`<h2>🗣️ Analyse</h2>
+<p class="sub">Questions pour challenger la voix.</p>
+<button class="btn btn-primary mb12" onclick="askAI('questions')" ${load("questions")?"disabled":""}>${aiBtnTxt("questions","🤖 Générer les questions")}</button>
+${load("questions")?`<p class="sub pulse" style="text-align:center">Génération en cours...</p>`:""}
+${f.questions.length===0&&!load("questions")?`<p class="sub" style="text-align:center;color:#6b7280">Appuie pour générer des questions personnalisées.</p>`:""}
+${f.questions.map((q,i)=>`<div class="card mb8">
+<div style="font-size:.85rem;font-weight:600;color:#a78bfa;margin-bottom:8px">${esc(q)}</div>
+<textarea rows="3" placeholder="Ta réponse..." id="rep_${i}"
+  onblur="state.form.reponses['${q.replace(/'/g,"\\'").replace(/"/g,"&quot;")}']=this.value"
+>${esc(f.reponses[q]||"")}</textarea>
+</div>`).join("")}
+${navRow()}`;
+
+  }else if(state.step==="contrearguments"){
+    content=`<h2>🛡️ Contre-arguments</h2>
+<p class="sub">L'IA puise dans ta carte de valeur pour te répondre personnellement.</p>
+<button class="btn btn-primary mb12" onclick="askAI('contre')" ${load("contre")?"disabled":""}>${aiBtnTxt("contre","🤖 Générer depuis ma carte de valeur")}</button>
+${aiBox(f.contreAI,"contre","setForm('contrearguments',state.form.contreAI)")}
+<textarea rows="5" placeholder="Tes contre-arguments..."
+  onblur="setForm('contrearguments',this.value)">${esc(f.contrearguments)}</textarea>
+${navRow()}`;
+
+  }else if(state.step==="ecart"){
+    content=`<h2>📐 Écart constaté</h2>
+<p class="sub">Ce qui sépare la voix de la norme.</p>
+<button class="btn btn-primary mb12" onclick="askAI('ecart')" ${load("ecart")?"disabled":""}>${aiBtnTxt("ecart","🤖 Analyser l'écart")}</button>
+${aiBox(f.ecartAI,"ecart","setForm('ecart',state.form.ecartAI)")}
+<textarea rows="4" placeholder="L'écart entre la voix et la norme..."
+  onblur="setForm('ecart',this.value)">${esc(f.ecart)}</textarea>
+${navRow()}`;
+
+  }else if(state.step==="besoin"){
+    content=`<h2>🎯 Besoins & Actions</h2>
+<p class="sub">Quel besoin se cache derrière ? Que faire ?</p>
+<button class="btn btn-primary mb12" onclick="askAI('besoins')" ${load("besoins")?"disabled":""}>${aiBtnTxt("besoins","🤖 Identifier besoins & actions")}</button>
+${load("besoins")?`<p class="sub pulse" style="text-align:center">Génération en cours...</p>`:""}
+<span class="label">Besoins identifiés</span>
+<textarea rows="3" placeholder="Ex : Confiance en soi, clarté..."
+  onblur="setForm('besoins',this.value)" class="mb12">${esc(f.besoins)}</textarea>
+<span class="label">⚡ Action immédiate (5 min)</span>
+<textarea rows="3" placeholder="Ex : Respirer 5 min..."
+  onblur="setForm('action',this.value)" class="mb12">${esc(f.action)}</textarea>
+<span class="label">🗓️ Projet (long terme)</span>
+<textarea rows="3" placeholder="Ex : Méditer chaque jour..."
+  onblur="setForm('projet',this.value)">${esc(f.projet)}</textarea>
+${navRow()}`;
+
+  }else if(state.step==="evaluation"){
+    const cd=f.convictionAvant-f.convictionApres;
+    const id=f.intensiteInit-f.intensiteApres;
+    content=`<h2>📊 Évaluation</h2>
+<div class="card italic mb12">"${esc(f.pensee)}"</div>
+<p class="sub">Conviction maintenant : <span class="strong">${f.convictionApres}%</span></p>
+<input type="range" min="0" max="100" value="${f.convictionApres}" oninput="setForm('convictionApres',+this.value)"/>
+<p class="sub mt12">Intensité émotionnelle maintenant : <span class="strong">${f.intensiteApres}/100</span></p>
+<input type="range" min="0" max="100" value="${f.intensiteApres}" oninput="setForm('intensiteApres',+this.value)"/>
+<div class="stat-grid mt16">
+<div class="stat-card"><div class="card-label">Conviction</div>
+<div class="stat-val ${cd>0?"green":"orange"}">${cd>0?"-":"+"} ${Math.abs(cd)}%</div></div>
+<div class="stat-card"><div class="card-label">Intensité</div>
+<div class="stat-val ${id>0?"green":"orange"}">${id>0?"-":"+"} ${Math.abs(id)}</div></div>
+</div>
+<span class="label">Note libre</span>
+<textarea rows="4" placeholder="Comment tu te sens après cette séance ?"
+  onblur="setForm('noteLibre',this.value)">${esc(f.noteLibre)}</textarea>
+${navRow()}`;
+  }
+
+  return `<button class="back-btn" onclick="setView('home')">← Annuler</button>
+${progressBar()}${content}`;
+}
+
+// =====================================================
+// MAIN RENDER
+// =====================================================
+function render(){
+  const app=document.getElementById("app");
+  let html="";
+  if(state.view==="home") html=renderHome();
+  else if(state.view==="new") html=renderNew();
+  else if(state.view==="history") html=renderHistory();
+  else if(state.view==="detail") html=renderDetail();
+  else if(state.view==="carte") html=renderCarte();
+  else if(state.view==="settings") html=renderSettings();
+  app.innerHTML=html;
+}
+
+render();
+</script>
+</body>
+</html>
