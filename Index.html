@@ -1,0 +1,561 @@
+<!DOCTYPE html>
+<html lang="fr">
+<head>
+<meta charset="UTF-8"/>
+<meta name="viewport" content="width=device-width, initial-scale=1.0"/>
+<meta name="theme-color" content="#0a0a0a"/>
+<meta name="apple-mobile-web-app-capable" content="yes"/>
+<meta name="apple-mobile-web-app-status-bar-style" content="black"/>
+<meta name="apple-mobile-web-app-title" content="Mon TCC"/>
+<title>Mon TCC</title>
+<style>
+*{box-sizing:border-box;margin:0;padding:0}
+body{background:#0a0a0a;color:#fff;font-family:-apple-system,BlinkMacSystemFont,'Segoe UI',sans-serif;min-height:100vh}
+.app{max-width:480px;margin:0 auto;padding:16px;min-height:100vh}
+h1{font-size:1.5rem;font-weight:700;text-align:center;margin-bottom:4px}
+h2{font-size:1.2rem;font-weight:700;margin-bottom:8px}
+p{color:#9ca3af;font-size:.875rem;margin-bottom:12px}
+textarea{width:100%;background:#1f2937;border:none;border-radius:16px;padding:16px;color:#fff;font-size:.95rem;resize:none;outline:none;font-family:inherit}
+textarea:focus{box-shadow:0 0 0 2px #7c3aed}
+input[type=range]{width:100%;accent-color:#7c3aed;margin:8px 0}
+.btn{width:100%;padding:16px;border:none;border-radius:16px;font-size:1rem;font-weight:700;cursor:pointer;transition:.2s}
+.btn-primary{background:linear-gradient(to right,#7c3aed,#db2777);color:#fff}
+.btn-secondary{background:#1f2937;color:#fff}
+.btn-success{background:linear-gradient(to right,#16a34a,#0d9488);color:#fff}
+.btn-danger{background:#7f1d1d;color:#fca5a5;font-size:.875rem}
+.btn:disabled{opacity:.4;cursor:default}
+.btn-sm{padding:8px 16px;font-size:.8rem;border-radius:12px;border:none;cursor:pointer;font-weight:600}
+.card{background:#1f2937;border-radius:16px;padding:16px;margin-bottom:12px}
+.card-label{font-size:.75rem;color:#9ca3af;margin-bottom:4px}
+.tag{display:inline-block;padding:6px 12px;border-radius:20px;font-size:.8rem;cursor:pointer;margin:4px;border:none;font-weight:600;transition:.2s}
+.tag-off{background:#1f2937;color:#d1d5db}
+.tag-on{background:#7c3aed;color:#fff}
+.progress-bar{background:#374151;border-radius:99px;height:8px;margin-bottom:16px}
+.progress-fill{height:8px;border-radius:99px;background:linear-gradient(to right,#7c3aed,#db2777);transition:width .4s}
+.progress-header{display:flex;justify-content:space-between;font-size:.75rem;color:#9ca3af;margin-bottom:4px}
+.ai-box{background:#1e1b4b;border:1px solid #4c1d95;border-radius:12px;padding:12px;margin-bottom:12px;font-size:.875rem}
+.ai-box .ai-label{font-size:.7rem;color:#a78bfa;margin-bottom:4px}
+.ai-box .ai-text{color:#e9d5ff;white-space:pre-wrap;line-height:1.5}
+.ai-use{background:none;border:none;color:#a78bfa;font-size:.75rem;text-decoration:underline;cursor:pointer;margin-top:6px}
+.nav-row{display:flex;gap:12px;margin-top:16px}
+.nav-row .btn{flex:1}
+.stat-grid{display:grid;grid-template-columns:1fr 1fr;gap:12px;margin-bottom:16px}
+.stat-card{background:#1f2937;border-radius:16px;padding:12px;text-align:center}
+.stat-val{font-size:1.5rem;font-weight:700}
+.green{color:#4ade80}.orange{color:#fb923c}
+.record-card{background:#1f2937;border-radius:16px;padding:16px;margin-bottom:12px;cursor:pointer}
+.record-card:hover{background:#374151}
+.record-date{font-size:.75rem;color:#6b7280;margin-bottom:4px}
+.record-pensee{font-weight:600;white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
+.record-meta{font-size:.8rem;color:#9ca3af;margin-top:4px}
+.section-title{font-size:.9rem;font-weight:700;margin:16px 0 8px}
+.api-input{background:#1f2937;border:1px solid #374151;border-radius:12px;padding:12px;color:#fff;width:100%;font-size:.85rem;outline:none;margin-bottom:8px}
+.api-input:focus{border-color:#7c3aed}
+.tab-row{display:flex;gap:8px;margin-bottom:20px}
+.tab{flex:1;padding:10px;border:none;border-radius:12px;font-size:.85rem;font-weight:700;cursor:pointer}
+.tab-on{background:#fff;color:#0a0a0a}
+.tab-off{background:#1f2937;color:#9ca3af}
+.home-btn{width:100%;padding:18px;border:none;border-radius:16px;font-size:1rem;font-weight:700;cursor:pointer;margin-bottom:12px;text-align:left}
+.pulse{animation:pulse 1.5s infinite}
+@keyframes pulse{0%,100%{opacity:1}50%{opacity:.4}}
+.back-btn{background:none;border:none;color:#9ca3af;font-size:.875rem;cursor:pointer;margin-bottom:16px;display:block}
+.italic{font-style:italic;color:#d1d5db}
+.wrap{display:flex;flex-wrap:wrap;gap:6px;margin-bottom:12px}
+</style>
+</head>
+<body>
+<div class="app" id="app"></div>
+
+<script>
+// ============================================================
+// DONNÉES
+// ============================================================
+const CARTE = {
+  valeurs:["Travail","Respect","Famille","Discipline","Amour","Effort","Détermination"],
+  forces:["Persévérant","Discipliné","Physique travaillé par le sport","Curieux","Intelligent","Déterminé","Ambitieux","Empathique"],
+  reussites:["70 jours sans alcool depuis février","Sportif — 5 séances/semaine","54 livres lus l'année passée","Lecteur quotidien à haute voix","Fonctionnaire des Nations Unies","A combattu et combat la dépression","Construit sa propre maison","Créé son propre outil TCC","Appris à parler en public","Se construit chaque jour par la discipline"],
+  croyances:["Je suis capable — je le prouve chaque jour","J'ai du respect pour moi-même","Je suis fier de moi","Je fais ce que je dis","Je peux tenir un engagement","Je peux m'en sortir","L'opinion des autres ne m'arrête pas","Les pressions internes ne m'arrêtent pas"],
+  engagements:["Me construire émotionnellement, physiquement, intellectuellement","Fonder une famille","Être en santé mentale et physique","Construire ma carrière","Investir dans mes passions"]
+};
+
+const DISTORSIONS=["Tout ou rien","Surgénéralisation","Filtre négatif","Dévalorisation du positif","Lecture des pensées","Prédiction négative","Catastrophisme","Raisonnement émotionnel","Les « je dois »","Étiquetage","Personnalisation"];
+const EMOTIONS=["Anxieux","Triste","En colère","Honteux","Coupable","Découragé","Frustré","Autre"];
+const COMPORTEMENTS=["Évitement","Isolement","Agressivité","Procrastination","Rumination","Impulsivité","Autre"];
+const STEPS=["pensee","manifestation","norme","analyse","contrearguments","ecart","besoin","evaluation"];
+const STEP_LABELS={pensee:"Voix intérieure",manifestation:"Manifestation",norme:"Norme",analyse:"Analyse",contrearguments:"Contre-arguments",ecart:"Écart",besoin:"Besoins & Actions",evaluation:"Évaluation"};
+
+// ============================================================
+// STATE
+// ============================================================
+let state = {
+  view: "home", // home | new | history | detail | carte | settings
+  step: "pensee",
+  form: emptyForm(),
+  records: [],
+  selected: null,
+  ai: { loading: false, field: null, results: {} },
+  apiKey: localStorage.getItem("tcc_apikey") || "",
+  apiKeyInput: "",
+};
+
+function emptyForm() {
+  return {
+    pensee:"", convictionAvant:80,
+    distorsions:[], emotions:[], comportements:[], intensiteInit:50,
+    norme:"", normeAI:"",
+    questions:[], reponses:{},
+    contrearguments:"", contreAI:"",
+    ecart:"", ecartAI:"",
+    besoins:"", action:"", projet:"",
+    convictionApres:80, intensiteApres:50, noteLibre:""
+  };
+}
+
+function loadRecords() {
+  try { return JSON.parse(localStorage.getItem("tcc_records") || "[]"); } catch { return []; }
+}
+
+function saveRecords(r) {
+  localStorage.setItem("tcc_records", JSON.stringify(r));
+}
+
+state.records = loadRecords();
+
+// ============================================================
+// AI
+// ============================================================
+async function callAI(prompt) {
+  if (!state.apiKey) throw new Error("no_key");
+  const res = await fetch("https://api.anthropic.com/v1/messages", {
+    method:"POST",
+    headers:{"Content-Type":"application/json","x-api-key":state.apiKey,"anthropic-version":"2023-06-01","anthropic-dangerous-direct-browser-access":"true"},
+    body:JSON.stringify({model:"claude-sonnet-4-20250514",max_tokens:1000,messages:[{role:"user",content:prompt}]})
+  });
+  const data = await res.json();
+  if (data.error) throw new Error(data.error.message);
+  return data.content?.[0]?.text || "";
+}
+
+const CARTE_STR = `Carte de valeur:
+Valeurs: ${CARTE.valeurs.join(", ")}
+Forces: ${CARTE.forces.join(", ")}
+Réussites: ${CARTE.reussites.join(" | ")}
+Croyances: ${CARTE.croyances.join(" | ")}
+Engagements: ${CARTE.engagements.join(" | ")}`;
+
+async function askAI(field) {
+  state.ai = { loading:true, field, results: state.ai.results };
+  render();
+  try {
+    let prompt = "";
+    const f = state.form;
+    if (field==="norme") {
+      prompt=`Tu es thérapeute TCC. Voix intérieure: "${f.pensee}". Propose 2-3 normes objectives (faits universels vérifiables) pour analyser cette pensée. Ex: "La perfection n'existe pas". Direct, sans intro.`;
+    } else if (field==="questions") {
+      prompt=`Tu es thérapeute TCC. Voix intérieure: "${f.pensee}". Génère 5 questions socratiques précises pour challenger cette pensée. Une par ligne, sans numérotation ni intro.`;
+    } else if (field==="contre") {
+      prompt=`Tu es thérapeute TCC bienveillant.\n${CARTE_STR}\n\nVoix intérieure: "${f.pensee}"\nDistorsions: ${f.distorsions.join(", ")}\nNorme: "${f.norme}"\nRéponses: ${Object.entries(f.reponses).map(([q,r])=>`Q:${q}/R:${r}`).join(" | ")}\n\nEn t'appuyant CONCRÈTEMENT sur la carte de valeur, génère 3 contre-arguments personnalisés et puissants. Direct, ancré dans sa réalité.`;
+    } else if (field==="ecart") {
+      prompt=`Tu es thérapeute TCC. Voix: "${f.pensee}". Norme: "${f.norme}". Contre-arguments: "${f.contrearguments}". Formule en 2-3 phrases l'écart entre la voix et la norme. Précis et direct.`;
+    } else if (field==="besoins") {
+      prompt=`Tu es thérapeute TCC.\n${CARTE_STR}\nVoix: "${f.pensee}"\nÉcart: "${f.ecart}"\nÉmotions: ${f.emotions.join(", ")}\n\nIdentifie 2-3 besoins psychologiques derrière cette voix.\nPropose une action immédiate (5 min) et un projet long terme.\nFormat strict:\nBESOINS: ...\nACTION: ...\nPROJET: ...`;
+    }
+    const result = await callAI(prompt);
+    if (field==="questions") {
+      const qs = result.split("\n").map(q=>q.trim()).filter(q=>q.length>5);
+      state.form.questions = qs;
+    } else if (field==="norme") { state.form.normeAI = result; }
+    else if (field==="contre") { state.form.contreAI = result; }
+    else if (field==="ecart") { state.form.ecartAI = result; }
+    else if (field==="besoins") {
+      const lines = result.split("\n");
+      state.form.besoins = lines.find(l=>l.startsWith("BESOINS"))?.replace("BESOINS:","").trim()||result;
+      state.form.action = lines.find(l=>l.startsWith("ACTION"))?.replace(/ACTION.*:/,"").trim()||"";
+      state.form.projet = lines.find(l=>l.startsWith("PROJET"))?.replace(/PROJET.*:/,"").trim()||"";
+    }
+  } catch(e) {
+    if (e.message==="no_key") alert("⚙️ Entre ta clé API Anthropic dans Paramètres pour utiliser l'IA.");
+    else alert("Erreur IA : " + e.message);
+  }
+  state.ai = { loading:false, field:null, results: state.ai.results };
+  render();
+}
+
+// ============================================================
+// EXPORT
+// ============================================================
+function exportData() {
+  const data = JSON.stringify(state.records, null, 2);
+  const blob = new Blob([data], {type:"application/json"});
+  const url = URL.createObjectURL(blob);
+  const a = document.createElement("a");
+  a.href = url;
+  a.download = `tcc_seances_${new Date().toISOString().split("T")[0]}.json`;
+  a.click();
+}
+
+function exportText() {
+  const lines = state.records.map(r => [
+    `=== ${new Date(r.date).toLocaleDateString("fr-FR")} ===`,
+    `VOIX: ${r.pensee}`,
+    `CONVICTION: ${r.convictionAvant}% → ${r.convictionApres}%`,
+    `ÉMOTIONS: ${r.emotions.join(", ")}`,
+    `NORME: ${r.norme}`,
+    `CONTRE-ARGUMENTS: ${r.contrearguments}`,
+    `ÉCART: ${r.ecart}`,
+    `BESOINS: ${r.besoins}`,
+    `ACTION: ${r.action}`,
+    `PROJET: ${r.projet}`,
+    `NOTE: ${r.noteLibre}`,
+    ""
+  ].join("\n")).join("\n");
+  const blob = new Blob([lines], {type:"text/plain"});
+  const url = URL.createObjectURL(blob);
+  const a = document.createElement("a");
+  a.href = url;
+  a.download = `tcc_seances_${new Date().toISOString().split("T")[0]}.txt`;
+  a.click();
+}
+
+// ============================================================
+// HELPERS
+// ============================================================
+function setStep(s) { state.step=s; render(); }
+function nextStep() { const i=STEPS.indexOf(state.step); if(i<STEPS.length-1) setStep(STEPS[i+1]); }
+function prevStep() { const i=STEPS.indexOf(state.step); if(i>0) setStep(STEPS[i-1]); }
+function setView(v) { state.view=v; render(); }
+function setForm(key,val) { state.form[key]=val; render(); }
+function toggleArr(key,val) {
+  const arr = state.form[key];
+  state.form[key] = arr.includes(val) ? arr.filter(x=>x!==val) : [...arr,val];
+  render();
+}
+function finalize() {
+  const record = {...state.form, date:new Date().toISOString(), id:Date.now()};
+  state.records = [record, ...state.records];
+  saveRecords(state.records);
+  state.form = emptyForm();
+  state.step = "pensee";
+  state.view = "home";
+  render();
+}
+
+// ============================================================
+// RENDER HELPERS
+// ============================================================
+function progressBar() {
+  const idx = STEPS.indexOf(state.step);
+  const pct = Math.round(((idx+1)/STEPS.length)*100);
+  return `
+    <div class="progress-header"><span>${STEP_LABELS[state.step]}</span><span>${idx+1}/${STEPS.length}</span></div>
+    <div class="progress-bar"><div class="progress-fill" style="width:${pct}%"></div></div>`;
+}
+
+function tags(arr, selected, key) {
+  return arr.map(t=>`<button class="tag ${selected.includes(t)?"tag-on":"tag-off"}" onclick="toggleArr('${key}','${t.replace(/'/g,"\\'")}')">
+    ${t}</button>`).join("");
+}
+
+function aiBox(text, loadingField, field, onUseJs) {
+  const loading = state.ai.loading && state.ai.field===field;
+  if (!text && !loading) return "";
+  return `<div class="ai-box">
+    <div class="ai-label">🤖 Suggestion IA</div>
+    ${loading ? `<div class="ai-text pulse">Génération en cours...</div>` : `
+      <div class="ai-text">${text.replace(/</g,"&lt;")}</div>
+      ${onUseJs ? `<button class="ai-use" onclick="${onUseJs}">Utiliser cette suggestion</button>` : ""}
+    `}
+  </div>`;
+}
+
+function aiBtnLabel(field, label) {
+  return state.ai.loading && state.ai.field===field ? "⏳ Génération..." : label;
+}
+
+function navRow(canNext=true) {
+  const idx = STEPS.indexOf(state.step);
+  const isLast = idx===STEPS.length-1;
+  return `<div class="nav-row">
+    ${idx>0 ? `<button class="btn btn-secondary" onclick="prevStep()">← Retour</button>` : ""}
+    ${!isLast
+      ? `<button class="btn btn-primary" onclick="nextStep()" ${!canNext?"disabled":""}>Suivant →</button>`
+      : `<button class="btn btn-success" onclick="finalize()">✅ Terminer la séance</button>`
+    }
+  </div>`;
+}
+
+// ============================================================
+// VIEWS
+// ============================================================
+function renderHome() {
+  const last = state.records[0];
+  return `
+    <h1>🧠 Mon TCC</h1>
+    <p style="text-align:center;margin-bottom:24px">Restructuration cognitive personnalisée</p>
+    <button class="home-btn btn-primary btn" onclick="state.form=emptyForm();state.step='pensee';setView('new')">+ Nouvelle séance</button>
+    <button class="home-btn btn-secondary btn" onclick="setView('history')">📋 Historique (${state.records.length})</button>
+    <button class="home-btn btn-secondary btn" onclick="setView('carte')">🗺️ Ma carte de valeur</button>
+    <button class="home-btn btn-secondary btn" onclick="setView('settings')">⚙️ Paramètres</button>
+    ${last ? `
+      <div class="section-title">Dernière séance</div>
+      <div class="record-card" onclick="state.selected=state.records[0];setView('detail')">
+        <div class="record-date">${new Date(last.date).toLocaleDateString("fr-FR",{day:"numeric",month:"long"})}</div>
+        <div class="record-pensee">${last.pensee}</div>
+        <div class="record-meta">Conviction ${last.convictionAvant}% → ${last.convictionApres}%</div>
+      </div>` : ""}`;
+}
+
+function renderCarte() {
+  const sections = [
+    {title:"⚡ Valeurs", items:CARTE.valeurs},
+    {title:"💪 Forces", items:CARTE.forces},
+    {title:"🏆 Réussites", items:CARTE.reussites},
+    {title:"🧠 Croyances", items:CARTE.croyances},
+    {title:"🎯 Engagements", items:CARTE.engagements},
+  ];
+  return `
+    <button class="back-btn" onclick="setView('home')">← Retour</button>
+    <h2>🗺️ Ma Carte de Valeur</h2>
+    ${sections.map(s=>`
+      <div class="card">
+        <div style="font-weight:700;margin-bottom:8px">${s.title}</div>
+        <div class="wrap">${s.items.map(i=>`<span class="tag tag-off" style="cursor:default">${i}</span>`).join("")}</div>
+      </div>`).join("")}`;
+}
+
+function renderHistory() {
+  return `
+    <button class="back-btn" onclick="setView('home')">← Retour</button>
+    <h2>📋 Historique</h2>
+    <div style="display:flex;gap:8px;margin-bottom:16px">
+      <button class="btn btn-secondary btn-sm" onclick="exportText()">📄 Export TXT</button>
+      <button class="btn btn-secondary btn-sm" onclick="exportData()">💾 Export JSON</button>
+    </div>
+    ${state.records.length===0 ? `<p style="text-align:center;margin-top:40px">Aucune séance encore.</p>` : ""}
+    ${state.records.map(r=>`
+      <div class="record-card" onclick="state.selected=${JSON.stringify(r).replace(/"/g,"&quot;").replace(/'/g,"&#39;")};state.selected=state.records.find(x=>x.id===${r.id});setView('detail')">
+        <div class="record-date">${new Date(r.date).toLocaleDateString("fr-FR",{day:"numeric",month:"long",year:"numeric"})}</div>
+        <div class="record-pensee">${r.pensee}</div>
+        <div class="record-meta">${r.emotions.join(", ")||"—"} · Conviction ${r.convictionAvant}% → ${r.convictionApres}%</div>
+      </div>`).join("")}`;
+}
+
+function renderDetail() {
+  const r = state.selected;
+  if (!r) return "";
+  const fields = [
+    {label:"Voix intérieure", val:r.pensee},
+    {label:"Distorsions", val:r.distorsions.join(", ")||"—"},
+    {label:"Émotions", val:r.emotions.join(", ")||"—"},
+    {label:"Norme", val:r.norme},
+    {label:"Contre-arguments", val:r.contrearguments},
+    {label:"Écart", val:r.ecart},
+    {label:"Besoins", val:r.besoins},
+    {label:"Action (5 min)", val:r.action},
+    {label:"Projet", val:r.projet},
+    {label:"Conviction", val:`${r.convictionAvant}% → ${r.convictionApres}%`},
+    {label:"Intensité", val:`${r.intensiteInit} → ${r.intensiteApres}`},
+    {label:"Note", val:r.noteLibre},
+  ];
+  return `
+    <button class="back-btn" onclick="setView('history')">← Retour</button>
+    <h2>Détail séance</h2>
+    ${fields.filter(f=>f.val).map(f=>`
+      <div class="card">
+        <div class="card-label">${f.label}</div>
+        <div>${f.val}</div>
+      </div>`).join("")}
+    <button class="btn btn-danger" style="margin-top:8px" onclick="
+      state.records=state.records.filter(x=>x.id!==${r.id});
+      saveRecords(state.records);
+      setView('history')">🗑️ Supprimer</button>`;
+}
+
+function renderSettings() {
+  return `
+    <button class="back-btn" onclick="setView('home')">← Retour</button>
+    <h2>⚙️ Paramètres</h2>
+    <div class="card">
+      <div style="font-weight:700;margin-bottom:8px">Clé API Anthropic</div>
+      <p>Nécessaire pour les suggestions IA. Gratuite sur console.anthropic.com</p>
+      <input class="api-input" type="password" placeholder="sk-ant-..." value="${state.apiKey}"
+        oninput="state.apiKeyInput=this.value"/>
+      <button class="btn btn-primary" style="margin-top:8px" onclick="
+        state.apiKey=state.apiKeyInput||state.apiKey;
+        localStorage.setItem('tcc_apikey',state.apiKey);
+        alert('✅ Clé sauvegardée !')">Sauvegarder la clé</button>
+    </div>
+    <div class="card" style="margin-top:12px">
+      <div style="font-weight:700;margin-bottom:8px">Données</div>
+      <p>${state.records.length} séance(s) enregistrée(s)</p>
+      <div style="display:flex;gap:8px;margin-top:8px">
+        <button class="btn btn-secondary btn-sm" onclick="exportText()">📄 Export TXT</button>
+        <button class="btn btn-secondary btn-sm" onclick="exportData()">💾 Export JSON</button>
+      </div>
+    </div>
+    <div class="card" style="margin-top:12px">
+      <div style="font-weight:700;margin-bottom:8px">Installer l'app</div>
+      <p>Sur iPhone : Safari → Partager → Sur l'écran d'accueil</p>
+      <p>Sur Android : Chrome → Menu → Ajouter à l'écran d'accueil</p>
+    </div>`;
+}
+
+function renderNew() {
+  const f = state.form;
+  const loading = (field) => state.ai.loading && state.ai.field===field;
+
+  let content = "";
+
+  if (state.step==="pensee") {
+    content = `
+      <h2>💭 Quelle est la voix intérieure ?</h2>
+      <p>Ce que la voix dit, mot pour mot.</p>
+      <textarea rows="5" placeholder="Ex : Je suis incompétent, je n'y arriverai jamais..."
+        oninput="setForm('pensee',this.value)">${f.pensee}</textarea>
+      <div style="margin-top:16px">
+        <p>Niveau de conviction : <strong style="color:#fff">${f.convictionAvant}%</strong></p>
+        <input type="range" min="0" max="100" value="${f.convictionAvant}"
+          oninput="setForm('convictionAvant',+this.value)"/>
+      </div>
+      ${navRow(f.pensee.trim().length>0)}`;
+
+  } else if (state.step==="manifestation") {
+    content = `
+      <h2>🔍 Comment ça se manifeste ?</h2>
+      <p>Distorsions cognitives</p>
+      <div class="wrap">${tags(DISTORSIONS,f.distorsions,"distorsions")}</div>
+      <p>Émotions</p>
+      <div class="wrap">${tags(EMOTIONS,f.emotions,"emotions")}</div>
+      <p>Comportements</p>
+      <div class="wrap">${tags(COMPORTEMENTS,f.comportements,"comportements")}</div>
+      <p>Intensité émotionnelle : <strong style="color:#fff">${f.intensiteInit}/100</strong></p>
+      <input type="range" min="0" max="100" value="${f.intensiteInit}"
+        oninput="setForm('intensiteInit',+this.value)"/>
+      ${navRow()}`;
+
+  } else if (state.step==="norme") {
+    content = `
+      <h2>⚖️ Quelle est la norme ?</h2>
+      <p>Le fait objectif et universel qui permet d'analyser cette voix.</p>
+      <button class="btn btn-primary" style="margin-bottom:12px"
+        onclick="askAI('norme')" ${loading("norme")?"disabled":""}>
+        ${aiBtnLabel("norme","🤖 Suggérer des normes")}</button>
+      ${aiBox(f.normeAI, loading, "norme", "setForm('norme',state.form.normeAI)")}
+      <textarea rows="4" placeholder="Ex : La perfection n'existe pas. Tout le monde a droit à l'erreur..."
+        oninput="setForm('norme',this.value)">${f.norme}</textarea>
+      ${navRow()}`;
+
+  } else if (state.step==="analyse") {
+    content = `
+      <h2>🗣️ Analyse</h2>
+      <p>Questions pour challenger la voix.</p>
+      <button class="btn btn-primary" style="margin-bottom:12px"
+        onclick="askAI('questions')" ${loading("questions")?"disabled":""}>
+        ${aiBtnLabel("questions","🤖 Générer les questions")}</button>
+      ${loading("questions") ? `<p class="pulse" style="text-align:center">Génération en cours...</p>` : ""}
+      ${f.questions.length===0 && !loading("questions") ? `<p style="text-align:center;color:#6b7280">Appuie pour générer des questions personnalisées.</p>` : ""}
+      ${f.questions.map(q=>`
+        <div class="card" style="margin-bottom:8px">
+          <div style="font-size:.85rem;font-weight:600;color:#a78bfa;margin-bottom:8px">${q}</div>
+          <textarea rows="3" placeholder="Ta réponse..."
+            oninput="state.form.reponses['${q.replace(/'/g,"\\'")}']= this.value"
+            >${f.reponses[q]||""}</textarea>
+        </div>`).join("")}
+      ${navRow()}`;
+
+  } else if (state.step==="contrearguments") {
+    content = `
+      <h2>🛡️ Contre-arguments</h2>
+      <p>L'IA puise dans ta carte de valeur pour te répondre personnellement.</p>
+      <button class="btn btn-primary" style="margin-bottom:12px"
+        onclick="askAI('contre')" ${loading("contre")?"disabled":""}>
+        ${aiBtnLabel("contre","🤖 Générer depuis ma carte de valeur")}</button>
+      ${aiBox(f.contreAI, loading, "contre", "setForm('contrearguments',state.form.contreAI)")}
+      <textarea rows="5" placeholder="Tes contre-arguments..."
+        oninput="setForm('contrearguments',this.value)">${f.contrearguments}</textarea>
+      ${navRow()}`;
+
+  } else if (state.step==="ecart") {
+    content = `
+      <h2>📐 Écart constaté</h2>
+      <p>Ce qui sépare la voix de la norme.</p>
+      <button class="btn btn-primary" style="margin-bottom:12px"
+        onclick="askAI('ecart')" ${loading("ecart")?"disabled":""}>
+        ${aiBtnLabel("ecart","🤖 Analyser l'écart")}</button>
+      ${aiBox(f.ecartAI, loading, "ecart", "setForm('ecart',state.form.ecartAI)")}
+      <textarea rows="4" placeholder="L'écart entre la voix et la norme..."
+        oninput="setForm('ecart',this.value)">${f.ecart}</textarea>
+      ${navRow()}`;
+
+  } else if (state.step==="besoin") {
+    content = `
+      <h2>🎯 Besoins & Actions</h2>
+      <p>Quel besoin se cache derrière ? Que faire ?</p>
+      <button class="btn btn-primary" style="margin-bottom:12px"
+        onclick="askAI('besoins')" ${loading("besoins")?"disabled":""}>
+        ${aiBtnLabel("besoins","🤖 Identifier besoins & actions")}</button>
+      ${loading("besoins") ? `<p class="pulse" style="text-align:center">Génération en cours...</p>` : ""}
+      <p>Besoins identifiés</p>
+      <textarea rows="3" placeholder="Ex : Confiance en soi, clarté, sécurité..."
+        oninput="setForm('besoins',this.value)">${f.besoins}</textarea>
+      <p style="margin-top:12px">⚡ Action immédiate (5 min)</p>
+      <textarea rows="3" placeholder="Ex : Respirer 5 min, écrire 3 réussites..."
+        oninput="setForm('action',this.value)">${f.action}</textarea>
+      <p style="margin-top:12px">🗓️ Projet (long terme)</p>
+      <textarea rows="3" placeholder="Ex : Méditer chaque jour, travailler la confiance en soi..."
+        oninput="setForm('projet',this.value)">${f.projet}</textarea>
+      ${navRow()}`;
+
+  } else if (state.step==="evaluation") {
+    const convDiff = f.convictionAvant - f.convictionApres;
+    const intDiff = f.intensiteInit - f.intensiteApres;
+    content = `
+      <h2>📊 Évaluation</h2>
+      <div class="card italic">"${f.pensee}"</div>
+      <p>Conviction maintenant : <strong style="color:#fff">${f.convictionApres}%</strong></p>
+      <input type="range" min="0" max="100" value="${f.convictionApres}"
+        oninput="setForm('convictionApres',+this.value)"/>
+      <p style="margin-top:12px">Intensité émotionnelle maintenant : <strong style="color:#fff">${f.intensiteApres}/100</strong></p>
+      <input type="range" min="0" max="100" value="${f.intensiteApres}"
+        oninput="setForm('intensiteApres',+this.value)"/>
+      <div class="stat-grid" style="margin-top:16px">
+        <div class="stat-card">
+          <div class="card-label">Conviction</div>
+          <div class="stat-val ${convDiff>0?"green":"orange"}">${convDiff>0?"-":"+"} ${Math.abs(convDiff)}%</div>
+        </div>
+        <div class="stat-card">
+          <div class="card-label">Intensité</div>
+          <div class="stat-val ${intDiff>0?"green":"orange"}">${intDiff>0?"-":"+"} ${Math.abs(intDiff)}</div>
+        </div>
+      </div>
+      <p style="margin-top:12px">Note libre</p>
+      <textarea rows="4" placeholder="Comment tu te sens après cette séance ?"
+        oninput="setForm('noteLibre',this.value)">${f.noteLibre}</textarea>
+      ${navRow()}`;
+  }
+
+  return `
+    <button class="back-btn" onclick="setView('home')">← Annuler</button>
+    ${progressBar()}
+    ${content}`;
+}
+
+// ============================================================
+// MAIN RENDER
+// ============================================================
+function render() {
+  const app = document.getElementById("app");
+  let html = "";
+  if (state.view==="home") html = renderHome();
+  else if (state.view==="new") html = renderNew();
+  else if (state.view==="history") html = renderHistory();
+  else if (state.view==="detail") html = renderDetail();
+  else if (state.view==="carte") html = renderCarte();
+  else if (state.view==="settings") html = renderSettings();
+  app.innerHTML = html;
+}
+
+render();
+</script>
+</body>
+</html>
